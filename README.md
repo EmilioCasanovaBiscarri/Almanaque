@@ -119,10 +119,7 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    este juego, que debe estar hecha), la franja muestra a la derecha «✓ Almanaque
    completo» (en pantallas muy estrechas, «✓ Completo») en vez del siguiente juego, sin
    mano ☞, y lleva a la portada con `?hecho=<id>`, como la mano ☜. En la pantalla final
-   no sale botón de siguiente, sino el sello «Almanaque completo» de la portada, debajo
-   de cada botón de volver (o al final de la página si el juego no tiene), que también
-   lleva a la portada; el contenedor es `.almanaque-sello-caja` y el sello,
-   `.almanaque-sello`.
+   no sale botón de siguiente: queda solo el de volver.
    En el juego que termina el almanaque, al llamar a `almanaqueHecho`, se abre por
    encima de la partida una pantalla de almanaque completo (`#almanaque-completo`, un
    `<dialog>` modal): una hoja con los colores del juego donde se estampa el sello
