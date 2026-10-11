@@ -473,7 +473,7 @@
     selloEl.classList.add('sello--estampar');
   }
 
-  /* --- Cuenta atrás hasta las hojas nuevas ------------------------------- */
+  /* --- Cuenta atrás hasta los juegos nuevos ----------------------------- */
 
   // Hasta la próxima medianoche local, con fechas de calendario: así los días de cambio
   // de hora duran lo que duran.
@@ -482,8 +482,8 @@
     var minutos = Math.max(1, Math.ceil((medianoche - ahora) / 60000));
     var horas = Math.floor(minutos / 60);
     var resto = minutos % 60;
-    if (!horas) return 'Hojas nuevas en ' + resto + ' min';
-    return 'Hojas nuevas en ' + horas + ' h' + (resto ? ' ' + resto + ' min' : '');
+    if (!horas) return 'Juegos nuevos en ' + resto + ' min';
+    return 'Juegos nuevos en ' + horas + ' h' + (resto ? ' ' + resto + ' min' : '');
   }
 
   function pintarCuentaAtras() {

@@ -165,7 +165,7 @@ Cuando todas las hojas jugables de hoy (las de `games.json` con `url` y sin
 `"proximamente"`) están hechas —por `almanaque:hechos` o por tener resultado de hoy en
 `almanaque:resultados`—, la portada estampa bajo la fecha un sello rojo «Almanaque
 completo» con la fecha en números romanos («10 · X · MMXXVI») y, debajo, la cuenta atrás
-hasta las hojas nuevas de medianoche («Hojas nuevas en 8 h 12 min»), que corre cada minuto
+hasta los juegos nuevos de medianoche («Juegos nuevos en 8 h 12 min»), que corre cada minuto
 mientras la página está a la vista. Al pasar la medianoche, la portada se repinta: sin
 sello y con las hojas sin hacer.
 
