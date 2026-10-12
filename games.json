@@ -4,7 +4,7 @@
     "nombre": "Calendas",
     "subtitulo": "El duelo de las fechas",
     "descripcion": "Dos palabras y un toque: ¿cuál entró antes en el español? Cuida tu racha.",
-    "url": "https://joseleking.github.io/Calendas/",
+    "url": "https://emiliocasanovabiscarri.github.io/Calendas/",
     "color": "#a8321e",
     "icono": "icons/calendas.png"
   },
@@ -13,7 +13,7 @@
     "nombre": "Periplo",
     "subtitulo": "El viaje de las palabras",
     "descripcion": "Adivina de dónde viene cada palabra. Tres nuevas cada día.",
-    "url": "https://joseleking.github.io/Periplo/",
+    "url": "https://emiliocasanovabiscarri.github.io/Periplo/",
     "color": "#1b747f",
     "icono": "icons/periplo.svg"
   },
@@ -22,7 +22,7 @@
     "nombre": "Mentidero",
     "subtitulo": "¿Verdad o cuento?",
     "descripcion": "Una palabra rara y varias definiciones. Solo una dice la verdad.",
-    "url": "https://joseleking.github.io/Mentidero/",
+    "url": "https://emiliocasanovabiscarri.github.io/Mentidero/",
     "color": "#6b3a5b",
     "icono": "icons/mentidero.svg"
   },
@@ -31,7 +31,7 @@
     "nombre": "Trampantojo",
     "subtitulo": "Los retos crípticos del día",
     "descripcion": "Tres definiciones al día en español que no son lo que parecen.",
-    "url": "https://joseleking.github.io/Trampantojo/",
+    "url": "https://emiliocasanovabiscarri.github.io/Trampantojo/",
     "color": "#73674f",
     "icono": "icons/trampantojo.svg"
   },
@@ -40,7 +40,7 @@
     "nombre": "Atlas",
     "subtitulo": "¿Dónde se dice?",
     "descripcion": "Tres palabras que no se dicen en todas partes. Señala en el mapa dónde se usa cada una.",
-    "url": "https://joseleking.github.io/Atlas/",
+    "url": "https://emiliocasanovabiscarri.github.io/Atlas/",
     "color": "#8f600e",
     "icono": "icons/atlas.svg"
   },
@@ -49,7 +49,7 @@
     "nombre": "Gentilicio",
     "subtitulo": "¿De dónde eres?",
     "descripcion": "Tres gentilicios al día: adivina de qué lugar son y descubre de dónde viene su nombre.",
-    "url": "https://joseleking.github.io/Gentilicio/",
+    "url": "https://emiliocasanovabiscarri.github.io/Gentilicio/",
     "color": "#2F5175",
     "icono": "icons/gentilicio.svg"
   },
@@ -58,7 +58,7 @@
     "nombre": "Paremia",
     "subtitulo": "Refranes con mucha pompa",
     "descripcion": "Tres refranes de toda la vida, reescritos de forma enrevesada. Adivina el original.",
-    "url": "https://joseleking.github.io/Paremia/",
+    "url": "https://emiliocasanovabiscarri.github.io/Paremia/",
     "color": "#3e5f3a",
     "icono": "icons/paremia.png"
   },
@@ -67,7 +67,7 @@
     "nombre": "Relicario",
     "subtitulo": "Gabinete de palabras fósiles",
     "descripcion": "Tres expresiones con una palabra que solo sobrevive dentro de ellas. ¿Sabes qué significaba?",
-    "url": "https://joseleking.github.io/Relicario/",
+    "url": "https://emiliocasanovabiscarri.github.io/Relicario/",
     "color": "#8a4b2a",
     "icono": "icons/relicario.svg"
   },
@@ -76,7 +76,7 @@
     "nombre": "Toponimia",
     "subtitulo": "¿Qué significa su nombre?",
     "descripcion": "Tres lugares del mundo hispanohablante al día. Descubre qué significa su nombre y de qué lengua viene.",
-    "url": "https://joseleking.github.io/Toponimia/",
+    "url": "https://emiliocasanovabiscarri.github.io/Toponimia/",
     "color": "#0f4f3c",
     "icono": "icons/toponimia.svg"
   },
@@ -85,7 +85,7 @@
     "nombre": "Otrora",
     "subtitulo": "Lo que las palabras fueron",
     "descripcion": "Tres palabras que han cambiado de significado. Adivina qué querían decir antaño.",
-    "url": "https://joseleking.github.io/Otrora/",
+    "url": "https://emiliocasanovabiscarri.github.io/Otrora/",
     "color": "#5e4632",
     "icono": "icons/otrora.svg"
   },
@@ -94,7 +94,7 @@
     "nombre": "Chirimbolo",
     "subtitulo": "¿Cómo se llama esto?",
     "descripcion": "Tres láminas al día con una parte señalada. ¿Sabes cómo se llama? Todo tiene nombre.",
-    "url": "https://joseleking.github.io/Chirimbolo/",
+    "url": "https://emiliocasanovabiscarri.github.io/Chirimbolo/",
     "color": "#aa5024",
     "icono": "icons/chirimbolo.svg",
     "estado": "nuevo"
@@ -104,7 +104,7 @@
     "nombre": "Gazapo",
     "subtitulo": "Cazadores de anacronismos",
     "descripcion": "Un texto de otra época con tres palabras que no podían estar ahí. ¿Las cazas?",
-    "url": "https://joseleking.github.io/Gazapo/",
+    "url": "https://emiliocasanovabiscarri.github.io/Gazapo/",
     "color": "#55479a",
     "icono": "icons/gazapo.svg",
     "estado": "nuevo"

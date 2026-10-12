@@ -32,7 +32,7 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
      "nombre": "Mi juego",
      "subtitulo": "Frase corta en cursiva",
      "descripcion": "Una o dos líneas que expliquen de qué va.",
-     "url": "https://joseleking.github.io/MiJuego/",
+     "url": "https://emiliocasanovabiscarri.github.io/MiJuego/",
      "color": "#2f6b3a",
      "icono": "icons/mijuego.svg",
      "estado": "nuevo"
@@ -87,7 +87,7 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    está hecho, pero no se sabe cómo fue. La portada no muestra `racha` ni `texto` (texto
    libre y corto, hasta 40 caracteres): la racha de cada juego se ve dentro del juego, y
    la racha común, arriba. El resultado se guarda en el `localStorage` que comparten todos los
-   juegos de `joseleking.github.io`, así que llega y marca la hoja aunque el jugador no
+   juegos de `emiliocasanovabiscarri.github.io`, así que llega y marca la hoja aunque el jugador no
    vuelva con la mano ☜. Se borra solo al cambiar de día.
 
    Cada llamada a `almanaqueHecho` apunta además el día en `almanaque:dias` (lista de
@@ -96,14 +96,14 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    aún no se ha jugado, la llama sale apagada y la racha de ayer sigue contando. Mientras
    la racha sea 0 el botón no se muestra (el de tema no se mueve) y aparece en cuanto se
    juega, también al volver de un juego sin recargar. Si el juego no está en
-   `joseleking.github.io/<Nombre>/`, el id se toma de la ruta en minúsculas: debe coincidir
+   `emiliocasanovabiscarri.github.io/<Nombre>/`, el id se toma de la ruta en minúsculas: debe coincidir
    con el de `games.json`.
 
    En la pantalla final, junto a «Compartir resultado», el juego puede poner un botón de
    volver con el estilo que quiera:
 
    ```html
-   <a class="boton" data-almanaque-volver hidden href="https://joseleking.github.io/Almanaque/">☜ Regresar al Almanaque</a>
+   <a class="boton" data-almanaque-volver hidden href="https://emiliocasanovabiscarri.github.io/Almanaque/">☜ Regresar al Almanaque</a>
    ```
 
    `volver-almanaque.js` lo muestra siempre y lo lleva al mismo sitio que la mano ☜.
@@ -140,7 +140,7 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    `#almanaque-siguiente`.
 
    En `localhost`, la franja y los botones llevan al mismo servidor local en vez de a
-   `joseleking.github.io`: sirviendo todos los repos desde un mismo puerto (por ejemplo
+   `emiliocasanovabiscarri.github.io`: sirviendo todos los repos desde un mismo puerto (por ejemplo
    una carpeta con enlaces a cada uno) se puede ir de un juego a otro en local.
 5. Modo claro u oscuro: todos los juegos siguen al que se elija en Almanaque (la clave
    `almanaque:tema` del `localStorage` compartido vale `light` o `dark`). Sin elección,
@@ -273,13 +273,13 @@ Service Workers (o Network → Offline) y recarga.
 
 ### Reiniciar todos los juegos
 
-Visita `/reiniciar/` (por ejemplo <https://joseleking.github.io/Almanaque/reiniciar/>) y
+Visita `/reiniciar/` (por ejemplo <https://emiliocasanovabiscarri.github.io/Almanaque/reiniciar/>) y
 pulsa «Borrar todo». Borra las partidas, rachas y estadísticas de todos los juegos y las
 hojas hechas, los resultados de hoy y la racha común de la portada, en ese navegador:
 todo lo que esté guardado bajo `<id>:…` (con los `id` de `games.json`) y las claves
 `almanaque:hechos`, `almanaque:resultados`, `almanaque:dias`, `almanaque:completo` y `almanaque:confeti`. El modo claro u oscuro de cada juego se conserva (las claves que
 acaban en `:tema`). Funciona porque todos los juegos comparten origen
-(`joseleking.github.io`); en local solo alcanza a los juegos servidos desde el mismo
+(`emiliocasanovabiscarri.github.io`); en local solo alcanza a los juegos servidos desde el mismo
 `localhost:puerto`. Un juego nuevo queda incluido solo si guarda bajo `<id>:`.
 
 ## Publicar en GitHub Pages
