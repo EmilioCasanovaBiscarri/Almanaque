@@ -1070,6 +1070,10 @@ a.hecho__enlace:hover .hecho__mano {
   letter-spacing: 0.12em;
 }
 
+.pie__derechos {
+  font-size: 0.8rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -94,6 +94,7 @@
     document.getElementById('efemerides').textContent =
       'Día ' + diaDelAnio(hoy) + ' del año · ' + faseLunar(hoy).replace(/^./, function (c) { return c.toUpperCase(); });
     document.getElementById('anio-romano').textContent = romano(hoy.getFullYear());
+    document.getElementById('anio-derechos').textContent = hoy.getFullYear();
   }
 
   /* --- Juegos hechos hoy ------------------------------------------------- */
