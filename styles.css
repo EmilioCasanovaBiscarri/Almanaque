@@ -1074,6 +1074,16 @@ a.hecho__enlace:hover .hecho__mano {
   font-size: 0.8rem;
 }
 
+.pie__derechos a {
+  color: inherit;
+  text-underline-offset: 0.15em;
+  white-space: nowrap;
+}
+
+.pie__derechos a:hover {
+  color: var(--tinta);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

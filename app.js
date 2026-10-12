@@ -95,6 +95,17 @@
       'Día ' + diaDelAnio(hoy) + ' del año · ' + faseLunar(hoy).replace(/^./, function (c) { return c.toUpperCase(); });
     document.getElementById('anio-romano').textContent = romano(hoy.getFullYear());
     document.getElementById('anio-derechos').textContent = hoy.getFullYear();
+    pintarContacto();
+  }
+
+  // El correo se monta aquí, a trozos, para que no aparezca entero en los archivos.
+  function pintarContacto() {
+    var usuario = 'ecasanovabisc';
+    var dominio = ['gmail', 'com'].join('.');
+    var correo = usuario + '@' + dominio;
+    var enlace = el('a', null, correo);
+    enlace.href = 'mailto:' + correo;
+    document.getElementById('contacto').append(' · ', enlace);
   }
 
   /* --- Juegos hechos hoy ------------------------------------------------- */
