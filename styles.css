@@ -885,27 +885,8 @@ a.hoja__cuerpo:hover .hoja__mano {
   color: var(--acento-texto);
 }
 
-.hecho__resultado,
-.hecho__sin-resultado {
-  white-space: nowrap;
-  font-family: var(--fuente-versalitas);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  line-height: 1.2;
-}
-
+/* Siempre tres casillas, rellenas según los aciertos. */
 .hecho__resultado {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--acento-texto);
-}
-
-.hecho__sin-resultado {
-  color: var(--tinta-suave);
-}
-
-.hecho__puntos {
   display: inline-flex;
   gap: 0.3rem;
 }
@@ -919,6 +900,12 @@ a.hoja__cuerpo:hover .hoja__mano {
 
 .punto--acierto {
   background: var(--acento-texto);
+}
+
+/* Sin resultado: hecho, pero sin saber cómo fue. */
+.punto--sin-dato {
+  border-style: dotted;
+  border-color: var(--tinta-suave);
 }
 
 .hecho__mano {

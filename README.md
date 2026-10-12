@@ -74,18 +74,19 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    sin jugarlo no la marca.
 
    Si además le pasa el resultado de hoy, Almanaque lo muestra en la línea del juego en
-   «Hechos hoy» («● ● ○»; sin resultado, «Hecho»). La racha de cada juego no sale en la
-   portada: se ve dentro del juego, y la racha común, arriba:
+   «Hechos hoy» con tres casillas, rellenas según los aciertos («● ● ○»):
 
    ```js
    window.almanaqueHecho && window.almanaqueHecho({ aciertos: 2, total: 3 });
    window.almanaqueHecho && window.almanaqueHecho({ aciertos: 3, total: 3, racha: 8 });
-   window.almanaqueHecho && window.almanaqueHecho({ texto: 'Resuelto' });
    ```
 
-   Todos los campos son opcionales. Con `aciertos` y `total` salen tantas casillas como
-   `total` (o la cifra `2/12` si son más de diez); `texto` es libre y corto (hasta 40
-   caracteres). El resultado se guarda en el `localStorage` que comparten todos los
+   Todos los campos son opcionales. Todos los juegos tienen tres retos al día y la portada
+   pinta siempre tres casillas: si `total` es otro, los aciertos se llevan a tres (7 de 10
+   rellena dos). Sin `aciertos` y `total`, las tres casillas salen punteadas: el juego
+   está hecho, pero no se sabe cómo fue. La portada no muestra `racha` ni `texto` (texto
+   libre y corto, hasta 40 caracteres): la racha de cada juego se ve dentro del juego, y
+   la racha común, arriba. El resultado se guarda en el `localStorage` que comparten todos los
    juegos de `joseleking.github.io`, así que llega y marca la hoja aunque el jugador no
    vuelva con la mano ☜. Se borra solo al cambiar de día.
 
@@ -168,7 +169,7 @@ Lo pendiente va siempre arriba. Las hojas de los juegos que faltan por hacer hoy
 en el orden de `games.json`, cada una con su número de siempre (Atlas es «Nº V» aunque
 sea la primera que queda), y las de «próximamente» al final. Debajo, la sección «Hechos
 hoy» recoge los juegos ya hechos en una línea compacta cada uno: icono, nombre, resultado
-de hoy (sin la racha del juego) y ☞, que lleva al juego como la hoja. Sin ningún juego hecho, la sección no sale y
+de hoy en tres casillas y ☞, que lleva al juego como la hoja. Sin ningún juego hecho, la sección no sale y
 la portada se ve como siempre; con todos hechos, no quedan hojas y la lista sigue al sello.
 
 Bajo la fecha, la línea de progreso pone una marca por juego (sin los de «próximamente»),

@@ -139,40 +139,25 @@
     return {};
   }
 
-  // Más de diez casillas no caben en la línea: se escribe la cifra.
-  var MAX_PUNTOS = 10;
-
-  // «● ● ○», en la línea del juego en «Hechos hoy». Lo que dice para los lectores de
-  // pantalla queda en su aria-label («2 de 3»). La racha de cada juego no sale aquí:
+  // Todos los juegos tienen tres retos al día: la línea de «Hechos hoy» lleva siempre tres
+  // casillas, rellenas según los aciertos («● ● ○»). Si un juego manda otra cuenta, se
+  // lleva a tres; sin cuenta (un día de prueba o una copia antigua de volver-almanaque.js),
+  // las tres salen punteadas: hecho, pero sin saber cómo fue. Lo que dice para los lectores
+  // de pantalla queda en su aria-label («2 de 3»). La racha de cada juego no sale aquí:
   // repetida en cada línea sobraba; se ve dentro del juego y, la común, arriba.
+  var CASILLAS = 3;
+
   function crearResultado(r) {
-    var tieneCuenta = typeof r.aciertos === 'number' && typeof r.total === 'number' && r.total > 0;
-    var tieneTexto = typeof r.texto === 'string' && r.texto;
-    if (!tieneCuenta && !tieneTexto) return null;
+    var tieneCuenta = !!r && typeof r.aciertos === 'number' && typeof r.total === 'number' && r.total > 0;
+    var aciertos = tieneCuenta ? Math.min(Math.max(0, r.aciertos), r.total) : 0;
+    var llenas = tieneCuenta ? Math.round(aciertos / r.total * CASILLAS) : 0;
 
     var linea = el('span', 'hecho__resultado');
-    var dicho = [];
-
-    if (tieneCuenta) {
-      var aciertos = Math.min(Math.max(0, r.aciertos), r.total);
-      if (r.total <= MAX_PUNTOS) {
-        var puntos = el('span', 'hecho__puntos');
-        for (var i = 0; i < r.total; i++) {
-          puntos.appendChild(el('span', i < aciertos ? 'punto punto--acierto' : 'punto'));
-        }
-        linea.appendChild(puntos);
-      } else {
-        linea.appendChild(el('span', 'hecho__resultado-cifra', aciertos + '/' + r.total));
-      }
-      dicho.push(aciertos + ' de ' + r.total);
+    for (var i = 0; i < CASILLAS; i++) {
+      linea.appendChild(el('span', !tieneCuenta ? 'punto punto--sin-dato' : i < llenas ? 'punto punto--acierto' : 'punto'));
     }
-    if (tieneTexto) {
-      linea.appendChild(el('span', 'hecho__resultado-texto', r.texto));
-      dicho.push(r.texto);
-    }
-
-    linea.setAttribute('role', 'img');
-    linea.setAttribute('aria-label', dicho.join(', '));
+    linea.setAttribute('aria-hidden', 'true');
+    linea.dataset.dicho = tieneCuenta ? aciertos + ' de ' + r.total : '';
     return linea;
   }
 
@@ -442,7 +427,7 @@
     return li;
   }
 
-  // Línea compacta de un juego hecho hoy: icono, nombre, resultado (o «Hecho») y ☞.
+  // Línea compacta de un juego hecho hoy: icono, nombre, tres casillas y ☞.
   function crearLineaHecho(juego, resultado, recien) {
     var li = el('li', 'hecho');
     li.dataset.juego = juego.id;
@@ -463,15 +448,10 @@
 
     enlace.appendChild(el('span', 'hecho__nombre', juego.nombre));
 
-    var dicho = juego.nombre + ', hecho hoy';
-    var lineaResultado = resultado && crearResultado(resultado);
-    if (lineaResultado) {
-      enlace.appendChild(lineaResultado);
-      dicho += ': ' + lineaResultado.getAttribute('aria-label');
-    } else {
-      enlace.appendChild(el('span', 'hecho__sin-resultado', 'Hecho'));
-    }
-    enlace.setAttribute('aria-label', dicho);
+    var lineaResultado = crearResultado(resultado);
+    enlace.appendChild(lineaResultado);
+    var dicho = lineaResultado.dataset.dicho;
+    enlace.setAttribute('aria-label', juego.nombre + ', hecho hoy' + (dicho ? ': ' + dicho : ''));
 
     var mano = el('span', 'hecho__mano', '☞');
     mano.setAttribute('aria-hidden', 'true');
