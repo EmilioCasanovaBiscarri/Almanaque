@@ -291,3 +291,7 @@ acaban en `:tema`). Funciona porque todos los juegos comparten origen
 
 Todas las rutas son relativas, así que funciona igual en una subcarpeta o en un dominio
 propio.
+
+## Derechos de autor
+
+© 2026 Emilio Casanova Biscarri. Todos los derechos reservados. El código, los textos y los diseños de este repositorio no pueden copiarse ni reutilizarse sin permiso.
