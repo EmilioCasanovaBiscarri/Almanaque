@@ -142,8 +142,9 @@
   // Más de diez casillas no caben en la línea: se escribe la cifra.
   var MAX_PUNTOS = 10;
 
-  // «● ● ○ · racha 4», en la línea del juego en «Hechos hoy». Lo que dice para los
-  // lectores de pantalla queda en su aria-label («2 de 3, racha de 4»).
+  // «● ● ○», en la línea del juego en «Hechos hoy». Lo que dice para los lectores de
+  // pantalla queda en su aria-label («2 de 3»). La racha de cada juego no sale aquí:
+  // repetida en cada línea sobraba; se ve dentro del juego y, la común, arriba.
   function crearResultado(r) {
     var tieneCuenta = typeof r.aciertos === 'number' && typeof r.total === 'number' && r.total > 0;
     var tieneTexto = typeof r.texto === 'string' && r.texto;
@@ -168,10 +169,6 @@
     if (tieneTexto) {
       linea.appendChild(el('span', 'hecho__resultado-texto', r.texto));
       dicho.push(r.texto);
-    }
-    if (typeof r.racha === 'number' && r.racha > 0) {
-      linea.appendChild(el('span', 'hecho__resultado-racha', 'racha ' + r.racha));
-      dicho.push('racha de ' + r.racha);
     }
 
     linea.setAttribute('role', 'img');

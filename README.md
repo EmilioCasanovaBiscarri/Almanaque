@@ -40,8 +40,10 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    ```
 
    - `id`: único, en minúsculas y sin espacios. Se usa para recordar si se ha jugado hoy.
-   - `color`: color de acento de la hoja (nombre, filete superior y sello de «hecho»).
-     En modo oscuro se aclara solo.
+   - `color`: color de acento del juego en la portada (filete y nombre de la hoja, su
+     línea en «Hechos hoy», su marca en la línea de progreso) y del confeti de almanaque
+     completo. En modo oscuro se aclara solo. Como tinta de imprenta, distinto de los
+     demás y oscuro: al menos 4,5:1 sobre el papel `#f3ead7`.
    - `estado` es opcional: `"nuevo"` añade una etiqueta en la esquina superior izquierda; `"proximamente"` muestra la hoja
      sin enlace (también se puede dejar `url` vacío). Bórralo cuando ya no haga falta.
    - El orden de las hojas es el del archivo.
@@ -72,7 +74,8 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    sin jugarlo no la marca.
 
    Si además le pasa el resultado de hoy, Almanaque lo muestra en la línea del juego en
-   «Hechos hoy» («● ● ○ · racha 5»; sin resultado, «Hecho»):
+   «Hechos hoy» («● ● ○»; sin resultado, «Hecho»). La racha de cada juego no sale en la
+   portada: se ve dentro del juego, y la racha común, arriba:
 
    ```js
    window.almanaqueHecho && window.almanaqueHecho({ aciertos: 2, total: 3 });
@@ -165,7 +168,7 @@ Lo pendiente va siempre arriba. Las hojas de los juegos que faltan por hacer hoy
 en el orden de `games.json`, cada una con su número de siempre (Atlas es «Nº V» aunque
 sea la primera que queda), y las de «próximamente» al final. Debajo, la sección «Hechos
 hoy» recoge los juegos ya hechos en una línea compacta cada uno: icono, nombre, resultado
-de hoy y ☞, que lleva al juego como la hoja. Sin ningún juego hecho, la sección no sale y
+de hoy (sin la racha del juego) y ☞, que lleva al juego como la hoja. Sin ningún juego hecho, la sección no sale y
 la portada se ve como siempre; con todos hechos, no quedan hojas y la lista sigue al sello.
 
 Bajo la fecha, la línea de progreso pone una marca por juego (sin los de «próximamente»),

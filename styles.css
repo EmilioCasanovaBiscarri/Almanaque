@@ -315,6 +315,7 @@ body::before {
 /* El botón es más ancho que la marca para tocarlo mejor; en pantallas estrechas
    encoge el hueco y la marca se queda en sus 14 × 18 px. */
 .progreso__marca {
+  position: relative;
   flex: 0 1 auto;
   width: 1.375rem;
   min-width: 14px;
@@ -339,6 +340,17 @@ body::before {
   transition: transform 0.15s ease;
 }
 
+/* Zona táctil de 44 px de alto, sin mover nada: sobresale por arriba y por abajo.
+   A lo ancho, los botones van pegados y no dejan huecos muertos. */
+.progreso__marca::after {
+  content: "";
+  position: absolute;
+  top: calc((1.875rem - 44px) / 2);
+  bottom: calc((1.875rem - 44px) / 2);
+  left: 0;
+  right: 0;
+}
+
 .progreso__marca--hecha::before {
   background: var(--acento-texto);
 }
@@ -347,10 +359,14 @@ body::before {
   transform: translateY(-2px);
 }
 
+/* El foco rodea el dibujo, no la zona táctil. */
 .progreso__marca:focus-visible {
+  outline: none;
+}
+
+.progreso__marca:focus-visible::before {
   outline: 2px solid var(--tinta);
-  outline-offset: -1px;
-  border-radius: 3px;
+  outline-offset: 2px;
 }
 
 .progreso__cuenta {
@@ -903,12 +919,6 @@ a.hoja__cuerpo:hover .hoja__mano {
 
 .punto--acierto {
   background: var(--acento-texto);
-}
-
-.hecho__resultado-racha::before {
-  content: "·";
-  margin-right: 0.55rem;
-  color: var(--tinta-suave);
 }
 
 .hecho__mano {

@@ -14,7 +14,7 @@
     "subtitulo": "El viaje de las palabras",
     "descripcion": "Adivina de dónde viene cada palabra. Tres nuevas cada día.",
     "url": "https://joseleking.github.io/Periplo/",
-    "color": "#2a7f8a",
+    "color": "#1b747f",
     "icono": "icons/periplo.svg"
   },
   {
@@ -23,7 +23,7 @@
     "subtitulo": "¿Verdad o cuento?",
     "descripcion": "Una palabra rara y varias definiciones. Solo una dice la verdad.",
     "url": "https://joseleking.github.io/Mentidero/",
-    "color": "#9b2c22",
+    "color": "#6b3a5b",
     "icono": "icons/mentidero.svg"
   },
   {
@@ -32,7 +32,7 @@
     "subtitulo": "Los retos crípticos del día",
     "descripcion": "Tres definiciones al día en español que no son lo que parecen.",
     "url": "https://joseleking.github.io/Trampantojo/",
-    "color": "#8a7148",
+    "color": "#73674f",
     "icono": "icons/trampantojo.svg"
   },
   {
@@ -41,7 +41,7 @@
     "subtitulo": "¿Dónde se dice?",
     "descripcion": "Tres palabras que no se dicen en todas partes. Señala en el mapa dónde se usa cada una.",
     "url": "https://joseleking.github.io/Atlas/",
-    "color": "#a33a2a",
+    "color": "#8f600e",
     "icono": "icons/atlas.svg"
   },
   {
@@ -68,7 +68,7 @@
     "subtitulo": "Gabinete de palabras fósiles",
     "descripcion": "Tres expresiones con una palabra que solo sobrevive dentro de ellas. ¿Sabes qué significaba?",
     "url": "https://joseleking.github.io/Relicario/",
-    "color": "#B3261E",
+    "color": "#8a4b2a",
     "icono": "icons/relicario.svg"
   },
   {
@@ -77,7 +77,7 @@
     "subtitulo": "¿Qué significa su nombre?",
     "descripcion": "Tres lugares del mundo hispanohablante al día. Descubre qué significa su nombre y de qué lengua viene.",
     "url": "https://joseleking.github.io/Toponimia/",
-    "color": "#B23A2E",
+    "color": "#0f4f3c",
     "icono": "icons/toponimia.svg"
   },
   {
@@ -86,7 +86,7 @@
     "subtitulo": "Lo que las palabras fueron",
     "descripcion": "Tres palabras que han cambiado de significado. Adivina qué querían decir antaño.",
     "url": "https://joseleking.github.io/Otrora/",
-    "color": "#B42A1F",
+    "color": "#5e4632",
     "icono": "icons/otrora.svg"
   },
   {
@@ -95,7 +95,7 @@
     "subtitulo": "¿Cómo se llama esto?",
     "descripcion": "Tres láminas al día con una parte señalada. ¿Sabes cómo se llama? Todo tiene nombre.",
     "url": "https://joseleking.github.io/Chirimbolo/",
-    "color": "#a8322a",
+    "color": "#aa5024",
     "icono": "icons/chirimbolo.svg",
     "estado": "nuevo"
   },
@@ -105,7 +105,7 @@
     "subtitulo": "Cazadores de anacronismos",
     "descripcion": "Un texto de otra época con tres palabras que no podían estar ahí. ¿Las cazas?",
     "url": "https://joseleking.github.io/Gazapo/",
-    "color": "#a8321e",
+    "color": "#55479a",
     "icono": "icons/gazapo.svg",
     "estado": "nuevo"
   }
