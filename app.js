@@ -490,8 +490,6 @@
   // Una marca por juego jugable, en el orden de games.json, y «4 de 12» a la derecha.
   function pintarProgreso(jugables, hechos, resultados, completo) {
     var caja = document.getElementById('progreso');
-    // Con el almanaque completo, el sello ya lo dice.
-    caja.hidden = completo || !jugables.length;
     var marcas = document.createDocumentFragment();
     var cuenta = 0;
     jugables.forEach(function (juego) {
@@ -505,6 +503,9 @@
       boton.addEventListener('click', function () { irAlJuego(juego.id); });
       marcas.appendChild(boton);
     });
+    // Sin ningún juego hecho todavía no hay progreso que mostrar; con el
+    // almanaque completo, el sello ya lo dice.
+    caja.hidden = completo || !cuenta;
     document.getElementById('progreso-marcas').replaceChildren(marcas);
     var texto = document.getElementById('progreso-cuenta');
     texto.textContent = cuenta + ' de ' + jugables.length;
