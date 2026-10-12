@@ -71,8 +71,8 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    Al volver con la mano ☜, Almanaque recibe `?hecho=<id>` y marca la hoja. Abrir un juego
    sin jugarlo no la marca.
 
-   Si además le pasa el resultado de hoy, Almanaque lo muestra en una línea al pie de la
-   hoja («Hoy ● ● ○ · racha 5»):
+   Si además le pasa el resultado de hoy, Almanaque lo muestra en la línea del juego en
+   «Hechos hoy» («● ● ○ · racha 5»; sin resultado, «Hecho»):
 
    ```js
    window.almanaqueHecho && window.almanaqueHecho({ aciertos: 2, total: 3 });
@@ -158,6 +158,29 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    `light` o `dark`, para que el cambio valga también en la portada y en los demás juegos.
 6. Sube los cambios a GitHub. Si quieres que quien tenga la app instalada vea el cambio
    también sin conexión, actualiza la versión de la caché (siguiente apartado).
+
+## La portada a lo largo del día
+
+Lo pendiente va siempre arriba. Las hojas de los juegos que faltan por hacer hoy salen
+en el orden de `games.json`, cada una con su número de siempre (Atlas es «Nº V» aunque
+sea la primera que queda), y las de «próximamente» al final. Debajo, la sección «Hechos
+hoy» recoge los juegos ya hechos en una línea compacta cada uno: icono, nombre, resultado
+de hoy y ☞, que lleva al juego como la hoja. Sin ningún juego hecho, la sección no sale y
+la portada se ve como siempre; con todos hechos, no quedan hojas y la lista sigue al sello.
+
+Bajo la fecha, la línea de progreso pone una marca por juego (sin los de «próximamente»),
+rellena con su color si está hecho y solo con el borde si no, y a la derecha «4 de 12».
+Cada marca es un botón que lleva a la hoja o a la línea de ese juego y la resalta un
+instante. Con el almanaque completo la fila se oculta: ya lo dice el sello.
+
+Al entrar en un juego, la portada apunta qué hoja era y a qué altura estaba
+(`almanaque:altura`, en `sessionStorage`). Si al volver el juego sigue pendiente, la hoja
+queda a la misma altura; si se acaba de hacer, la portada se queda arriba del todo, con la
+siguiente hoja pendiente a la vista, y su línea entra en «Hechos hoy» con un fundido breve
+(sin él con movimiento reducido).
+
+Todo se repinta al volver a la página (botón atrás, cambiar de app), al cambiar de día a
+medianoche y al cambiar el tema.
 
 ## Almanaque completo
 

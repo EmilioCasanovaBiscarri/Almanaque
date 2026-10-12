@@ -142,34 +142,35 @@
   // Más de diez casillas no caben en la línea: se escribe la cifra.
   var MAX_PUNTOS = 10;
 
+  // «● ● ○ · racha 4», en la línea del juego en «Hechos hoy». Lo que dice para los
+  // lectores de pantalla queda en su aria-label («2 de 3, racha de 4»).
   function crearResultado(r) {
     var tieneCuenta = typeof r.aciertos === 'number' && typeof r.total === 'number' && r.total > 0;
     var tieneTexto = typeof r.texto === 'string' && r.texto;
     if (!tieneCuenta && !tieneTexto) return null;
 
-    var linea = el('span', 'hoja__resultado');
-    var dicho = ['Hoy'];
-    linea.appendChild(el('span', 'hoja__resultado-rotulo', 'Hoy'));
+    var linea = el('span', 'hecho__resultado');
+    var dicho = [];
 
     if (tieneCuenta) {
       var aciertos = Math.min(Math.max(0, r.aciertos), r.total);
       if (r.total <= MAX_PUNTOS) {
-        var puntos = el('span', 'hoja__puntos');
+        var puntos = el('span', 'hecho__puntos');
         for (var i = 0; i < r.total; i++) {
           puntos.appendChild(el('span', i < aciertos ? 'punto punto--acierto' : 'punto'));
         }
         linea.appendChild(puntos);
       } else {
-        linea.appendChild(el('span', 'hoja__resultado-cifra', aciertos + '/' + r.total));
+        linea.appendChild(el('span', 'hecho__resultado-cifra', aciertos + '/' + r.total));
       }
       dicho.push(aciertos + ' de ' + r.total);
     }
     if (tieneTexto) {
-      linea.appendChild(el('span', 'hoja__resultado-texto', r.texto));
+      linea.appendChild(el('span', 'hecho__resultado-texto', r.texto));
       dicho.push(r.texto);
     }
     if (typeof r.racha === 'number' && r.racha > 0) {
-      linea.appendChild(el('span', 'hoja__resultado-racha', 'racha ' + r.racha));
+      linea.appendChild(el('span', 'hecho__resultado-racha', 'racha ' + r.racha));
       dicho.push('racha de ' + r.racha);
     }
 
@@ -274,15 +275,18 @@
 
   /* --- Volver a la misma altura ------------------------------------------ */
 
-  // Al entrar en un juego se apunta qué hoja era y a qué altura de la pantalla estaba.
-  // Al volver, la portada se carga de nuevo y empezaría arriba del todo: se pone esa
-  // misma hoja a la misma altura. Se coloca por la hoja y no por los píxeles
-  // desplazados, porque al volver puede haber crecido con el «Hecho» y el resultado.
-  function apuntarAltura(id, hoja) {
+  // Al entrar en un juego se apunta qué hoja era, a qué altura de la pantalla estaba y
+  // si estaba pendiente. Al volver, la portada se carga de nuevo y empezaría arriba del
+  // todo: si el juego sigue pendiente, se pone su hoja a la misma altura (por la hoja y
+  // no por los píxeles desplazados, porque las de encima pueden haber cambiado). Si se
+  // acaba de hacer, su hoja ha bajado a «Hechos hoy»: la portada se queda arriba, con la
+  // siguiente pendiente a la vista.
+  function apuntarAltura(id, nodo, pendiente) {
     try {
       window.sessionStorage.setItem(CLAVE_ALTURA, JSON.stringify({
         id: id,
-        arriba: hoja.getBoundingClientRect().top,
+        arriba: nodo.getBoundingClientRect().top,
+        pendiente: pendiente,
         cuando: Date.now()
       }));
     } catch (e) { /* sin almacenamiento: se vuelve arriba, como antes */ }
@@ -299,20 +303,34 @@
     return datos;
   }
 
-  function colocarHoja(datos) {
-    var hojas = hojasEl.querySelectorAll('.hoja');
-    for (var i = 0; i < hojas.length; i++) {
-      if (hojas[i].dataset.juego === datos.id) {
-        window.scrollTo(0, window.scrollY + hojas[i].getBoundingClientRect().top - datos.arriba);
-        return;
-      }
-    }
+  // Se entró en el juego estando pendiente y ya está hecho.
+  function recienHecho(datos) {
+    if (!datos || !datos.pendiente) return false;
+    var juego = juegoPorId(datos.id);
+    return !!juego && estaHecho(juego, hechosHoy(), resultadosHoy());
   }
 
-  function volverALaAltura() {
-    var datos = tomarAltura();
+  // La hoja pendiente o la línea de «Hechos hoy» de ese juego.
+  function nodoDelJuego(id) {
+    var nodos = document.querySelectorAll('main [data-juego]');
+    for (var i = 0; i < nodos.length; i++) {
+      if (nodos[i].dataset.juego === id) return nodos[i];
+    }
+    return null;
+  }
+
+  function colocarHoja(datos) {
+    var nodo = nodoDelJuego(datos.id);
+    if (nodo) window.scrollTo(0, window.scrollY + nodo.getBoundingClientRect().top - datos.arriba);
+  }
+
+  function volverALaAltura(datos, recien) {
     if (!datos) return;
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+    if (recien) {
+      window.scrollTo(0, 0);
+      return;
+    }
     colocarHoja(datos);
     // Las fuentes pueden llegar después y cambiar la altura de las hojas: se recoloca.
     if (document.fonts && document.fonts.ready) {
@@ -347,18 +365,40 @@
     }
   }
 
-  function crearHoja(juego, indice, hechos, resultados) {
+  // Los de «próximamente» (o sin url) no cuentan: ni para el progreso ni para los hechos.
+  function esJugable(juego) {
+    return !!juego.url && normalizarEstado(juego.estado) !== 'proximamente';
+  }
+
+  // Hecho hoy: vuelto con ☜ o con resultado de hoy aunque no se volviera con ☜.
+  function estaHecho(juego, hechos, resultados) {
+    return esJugable(juego) && (hechos.indexOf(juego.id) !== -1 || !!resultados[juego.id]);
+  }
+
+  function juegoPorId(id) {
+    for (var i = 0; i < juegos.length; i++) {
+      if (juegos[i].id === id) return juegos[i];
+    }
+    return null;
+  }
+
+  // Abierto en otra pestaña (Cmd, Ctrl, Mayús o botón central), aquí no se vuelve.
+  function alEntrar(enlace, id, nodo, pendiente) {
+    enlace.addEventListener('click', function (e) {
+      if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) apuntarAltura(id, nodo, pendiente);
+    });
+  }
+
+  // Hoja de un juego pendiente (o de «próximamente»). El número es el del juego en
+  // games.json, no el de su puesto entre las pendientes.
+  function crearHoja(juego, indice) {
     var estado = normalizarEstado(juego.estado);
-    var proximamente = estado === 'proximamente' || !juego.url;
-    var resultado = proximamente ? null : resultados[juego.id];
-    // Si el juego ha dejado su resultado de hoy, está hecho aunque no se volviera con ☜.
-    var hecho = !proximamente && (hechos.indexOf(juego.id) !== -1 || !!resultado);
+    var proximamente = !esJugable(juego);
 
     var li = el('li', 'hoja');
     li.dataset.juego = juego.id;
     if (juego.color) li.style.setProperty('--acento', juego.color);
     if (proximamente) li.classList.add('hoja--proximamente');
-    if (hecho) li.classList.add('hoja--hecho');
 
     var cuerpo;
     if (proximamente) {
@@ -366,10 +406,7 @@
     } else {
       cuerpo = el('a', 'hoja__cuerpo');
       cuerpo.href = enlaceDesdeAlmanaque(juego.url, juego.id);
-      cuerpo.addEventListener('click', function (e) {
-        // Abierto en otra pestaña (Cmd, Ctrl, Mayús o botón central), aquí no se vuelve.
-        if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) apuntarAltura(juego.id, li);
-      });
+      alEntrar(cuerpo, juego.id, li, true);
     }
 
     var icono = el('img', 'hoja__icono');
@@ -391,24 +428,15 @@
     mano.setAttribute('aria-hidden', 'true');
     cuerpo.appendChild(mano);
 
-    // El resultado va en la esquina de abajo, haciendo pareja con las marcas de arriba.
-    var lineaResultado = resultado && crearResultado(resultado);
-    if (lineaResultado) {
-      li.classList.add('hoja--con-resultado');
-      cuerpo.appendChild(lineaResultado);
-    }
-
-    // «Nuevo» va solo en la esquina de arriba a la izquierda; el resto de marcas, a la derecha.
+    // «Nuevo» va solo en la esquina de arriba a la izquierda; «Próximamente», a la derecha.
     if (estado === 'nuevo' && !proximamente) {
       var nuevo = el('span', 'hoja__marcas hoja__marcas--izquierda');
       nuevo.appendChild(el('span', 'marca marca--nuevo', 'Nuevo'));
       cuerpo.appendChild(nuevo);
     }
-
-    var marcas = el('span', 'hoja__marcas');
-    if (proximamente) marcas.appendChild(el('span', 'marca marca--proximamente', 'Próximamente'));
-    if (hecho) marcas.appendChild(el('span', 'marca marca--hecho', 'Hecho'));
-    if (marcas.childNodes.length) {
+    if (proximamente) {
+      var marcas = el('span', 'hoja__marcas');
+      marcas.appendChild(el('span', 'marca marca--proximamente', 'Próximamente'));
       li.classList.add('hoja--con-marcas');
       cuerpo.appendChild(marcas);
     }
@@ -417,28 +445,148 @@
     return li;
   }
 
+  // Línea compacta de un juego hecho hoy: icono, nombre, resultado (o «Hecho») y ☞.
+  function crearLineaHecho(juego, resultado, recien) {
+    var li = el('li', 'hecho');
+    li.dataset.juego = juego.id;
+    if (juego.color) li.style.setProperty('--acento', juego.color);
+    if (recien) li.classList.add('hecho--recien');
+
+    var enlace = el('a', 'hecho__enlace');
+    enlace.href = enlaceDesdeAlmanaque(juego.url, juego.id);
+    alEntrar(enlace, juego.id, li, false);
+
+    var icono = el('img', 'hecho__icono');
+    icono.src = juego.icono || 'icons/almanaque.svg';
+    icono.alt = '';
+    icono.width = 28;
+    icono.height = 28;
+    icono.decoding = 'async';
+    enlace.appendChild(icono);
+
+    enlace.appendChild(el('span', 'hecho__nombre', juego.nombre));
+
+    var dicho = juego.nombre + ', hecho hoy';
+    var lineaResultado = resultado && crearResultado(resultado);
+    if (lineaResultado) {
+      enlace.appendChild(lineaResultado);
+      dicho += ': ' + lineaResultado.getAttribute('aria-label');
+    } else {
+      enlace.appendChild(el('span', 'hecho__sin-resultado', 'Hecho'));
+    }
+    enlace.setAttribute('aria-label', dicho);
+
+    var mano = el('span', 'hecho__mano', '☞');
+    mano.setAttribute('aria-hidden', 'true');
+    enlace.appendChild(mano);
+
+    li.appendChild(enlace);
+    return li;
+  }
+
+  // Lleva la página hasta la hoja (o la línea de «Hechos hoy») del juego y la resalta.
+  var resaltadoId = null;
+
+  function irAlJuego(id) {
+    var nodo = nodoDelJuego(id);
+    if (!nodo) return;
+    try {
+      nodo.scrollIntoView({ behavior: sinMovimiento() ? 'auto' : 'smooth', block: 'center' });
+    } catch (e) {
+      nodo.scrollIntoView();
+    }
+    var anterior = document.querySelector('.resaltada');
+    if (anterior) anterior.classList.remove('resaltada');
+    window.clearTimeout(resaltadoId);
+    void nodo.offsetWidth; // para que la animación vuelva a empezar
+    nodo.classList.add('resaltada');
+    resaltadoId = window.setTimeout(function () { nodo.classList.remove('resaltada'); }, 1600);
+    // El foco va al enlace, para seguir con el teclado desde ahí.
+    var enlace = nodo.querySelector('a');
+    if (enlace) {
+      try {
+        enlace.focus({ preventScroll: true });
+      } catch (e) { /* navegador antiguo */ }
+    }
+  }
+
+  // Una marca por juego jugable, en el orden de games.json, y «4 de 12» a la derecha.
+  function pintarProgreso(jugables, hechos, resultados, completo) {
+    var caja = document.getElementById('progreso');
+    // Con el almanaque completo, el sello ya lo dice.
+    caja.hidden = completo || !jugables.length;
+    var marcas = document.createDocumentFragment();
+    var cuenta = 0;
+    jugables.forEach(function (juego) {
+      var hecho = estaHecho(juego, hechos, resultados);
+      if (hecho) cuenta++;
+      var boton = el('button', 'progreso__marca' + (hecho ? ' progreso__marca--hecha' : ''));
+      boton.type = 'button';
+      if (juego.color) boton.style.setProperty('--acento', juego.color);
+      boton.setAttribute('aria-label', juego.nombre + (hecho ? ', hecho' : ', pendiente'));
+      boton.title = juego.nombre;
+      boton.addEventListener('click', function () { irAlJuego(juego.id); });
+      marcas.appendChild(boton);
+    });
+    document.getElementById('progreso-marcas').replaceChildren(marcas);
+    var texto = document.getElementById('progreso-cuenta');
+    texto.textContent = cuenta + ' de ' + jugables.length;
+    texto.setAttribute('aria-label', cuenta + ' de ' + jugables.length + ' juegos hechos hoy');
+  }
+
+  // Los juegos que se acaban de hacer entran en «Hechos hoy» con un fundido breve:
+  // el de la vuelta (ver volverALaAltura) y los que no estaban en la pintura anterior.
+  var recienHechos = [];
+  var hechosPintados = null;
+  var firmaPintada = null;
+
   function pintarHojas() {
     var hechos = hechosHoy();
     var resultados = resultadosHoy();
-    var fragmento = document.createDocumentFragment();
-    juegos.forEach(function (juego, i) {
-      fragmento.appendChild(crearHoja(juego, i, hechos, resultados));
-    });
-    hojasEl.replaceChildren(fragmento);
+    var jugables = juegos.filter(esJugable);
+    var completo = estaCompleto(hechos, resultados);
     diaPintado = claveDeHoy();
-    pintarCompleto(estaCompleto(hechos, resultados));
+
+    // Al volver a la página sin cambios no se rehace nada (ni se corta un fundido).
+    var firma = JSON.stringify([diaPintado, juegos, hechos, resultados]);
+    if (firma !== firmaPintada) {
+      firmaPintada = firma;
+      var pendientes = document.createDocumentFragment();
+      var proximos = document.createDocumentFragment();
+      var lista = document.createDocumentFragment();
+      var ahora = [];
+      juegos.forEach(function (juego, i) {
+        if (!esJugable(juego)) {
+          proximos.appendChild(crearHoja(juego, i));
+        } else if (!estaHecho(juego, hechos, resultados)) {
+          pendientes.appendChild(crearHoja(juego, i));
+        } else {
+          var recien = recienHechos.indexOf(juego.id) !== -1 ||
+            (hechosPintados !== null && hechosPintados.indexOf(juego.id) === -1);
+          lista.appendChild(crearLineaHecho(juego, resultados[juego.id], recien));
+          ahora.push(juego.id);
+        }
+      });
+      pendientes.appendChild(proximos);
+      hojasEl.replaceChildren(pendientes);
+      hojasEl.hidden = !hojasEl.childNodes.length;
+      document.getElementById('hechos-lista').replaceChildren(lista);
+      document.getElementById('hechos').hidden = !ahora.length;
+      hechosPintados = ahora;
+      recienHechos = [];
+      pintarProgreso(jugables, hechos, resultados, completo);
+    }
+    pintarCompleto(completo);
   }
 
   /* --- Almanaque completo ------------------------------------------------ */
 
-  // Todas las hojas jugables de hoy hechas (las mismas reglas que crearHoja). Si se añade
-  // un juego a games.json durante el día, deja de estar completo hasta hacer esa hoja.
+  // Todas las hojas jugables de hoy hechas. Si se añade un juego a games.json durante
+  // el día, deja de estar completo hasta hacer esa hoja.
   function estaCompleto(hechos, resultados) {
-    var jugables = juegos.filter(function (j) {
-      return j.url && normalizarEstado(j.estado) !== 'proximamente';
-    });
+    var jugables = juegos.filter(esJugable);
     return jugables.length > 0 && jugables.every(function (j) {
-      return hechos.indexOf(j.id) !== -1 || !!resultados[j.id];
+      return estaHecho(j, hechos, resultados);
     });
   }
 
@@ -523,8 +671,11 @@
           return j && j.id && j.nombre;
         });
         if (!juegos.length) mostrarAviso('Todavía no hay juegos en el almanaque.');
+        var datos = tomarAltura();
+        var recien = recienHecho(datos);
+        if (recien) recienHechos = [datos.id];
         pintarHojas();
-        volverALaAltura();
+        volverALaAltura(datos, recien);
       })
       .catch(function (err) {
         console.error('No se pudo cargar games.json', err);
@@ -533,8 +684,8 @@
   }
 
   // Al volver a la portada (botón atrás, cambiar de app, pasar la medianoche)
-  // se refrescan el tema (puede haberse cambiado en un juego), la fecha,
-  // las marcas de «hecho» y los resultados.
+  // se refrescan el tema (puede haberse cambiado en un juego), la fecha, la línea de
+  // progreso, las hojas pendientes y los hechos con sus resultados.
   function refrescar() {
     aplicarTema(temaGuardado());
     pintarCabecera();
@@ -544,9 +695,11 @@
 
   window.addEventListener('pageshow', function (e) {
     if (!e.persisted) return;
-    // Volviendo con «atrás», el navegador ya deja la página donde estaba.
-    tomarAltura();
+    // Volviendo con «atrás», el navegador ya deja la página donde estaba; pero si el
+    // juego se acaba de hacer, su hoja ha bajado a «Hechos hoy» y se vuelve arriba.
+    var recien = recienHecho(tomarAltura());
     refrescar();
+    if (recien) window.scrollTo(0, 0);
     latir();
   });
   document.addEventListener('visibilitychange', function () {

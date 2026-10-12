@@ -294,6 +294,74 @@ body::before {
   color: var(--tinta-suave);
 }
 
+/* Línea de progreso: una hojita de taco por juego, rellena si está hecho hoy. */
+.progreso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.3rem;
+}
+
+.progreso[hidden] {
+  display: none;
+}
+
+.progreso__marcas {
+  display: flex;
+  min-width: 0;
+}
+
+/* El botón es más ancho que la marca para tocarlo mejor; en pantallas estrechas
+   encoge el hueco y la marca se queda en sus 14 × 18 px. */
+.progreso__marca {
+  flex: 0 1 auto;
+  width: 1.375rem;
+  min-width: 14px;
+  height: 1.875rem;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.progreso__marca::before {
+  content: "";
+  width: 14px;
+  height: 18px;
+  border: 1.5px solid var(--acento-texto);
+  /* Filete de arriba más grueso, como el de las hojas. */
+  border-top-width: 3.5px;
+  border-radius: 2px;
+  transition: transform 0.15s ease;
+}
+
+.progreso__marca--hecha::before {
+  background: var(--acento-texto);
+}
+
+.progreso__marca:hover::before {
+  transform: translateY(-2px);
+}
+
+.progreso__marca:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: -1px;
+  border-radius: 3px;
+}
+
+.progreso__cuenta {
+  flex: none;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--tinta-suave);
+  font-variant-numeric: lining-nums;
+}
+
 /* Almanaque completo: sello de caucho bajo la fecha y cuenta atrás. */
 .completo {
   display: flex;
@@ -513,6 +581,10 @@ body::before {
 
 /* --- Hojas (tarjetas de juego) ------------------------------------------- */
 
+.hojas[hidden] {
+  display: none;
+}
+
 .hojas {
   list-style: none;
   margin: 0;
@@ -528,10 +600,16 @@ body::before {
   }
 }
 
-.hoja {
+/* Cada juego trae su color; en modo oscuro se aclara para leerse sobre el papel. */
+.hoja,
+.hecho,
+.progreso__marca {
   --acento: var(--tinta);
   --acento-texto: var(--acento);
   --acento-texto: color-mix(in oklab, var(--acento) calc(100% - var(--aclarar-acento)), white);
+}
+
+.hoja {
   display: flex;
 }
 
@@ -617,49 +695,6 @@ a.hoja__cuerpo:focus-visible {
   color: var(--tinta-suave);
 }
 
-/* Resultado de hoy: en la esquina de abajo a la derecha, como las marcas de arriba. */
-.hoja__resultado {
-  position: absolute;
-  bottom: 0.7rem;
-  right: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  white-space: nowrap;
-  pointer-events: none;
-  font-family: var(--fuente-versalitas);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  line-height: 1.2;
-  color: var(--acento-texto);
-}
-
-.hoja__resultado-rotulo {
-  color: var(--tinta-suave);
-}
-
-.hoja__puntos {
-  display: inline-flex;
-  gap: 0.3rem;
-}
-
-.punto {
-  width: 0.62rem;
-  height: 0.62rem;
-  border: 1.5px solid var(--acento-texto);
-  border-radius: 50%;
-}
-
-.punto--acierto {
-  background: var(--acento-texto);
-}
-
-.hoja__resultado-racha::before {
-  content: "·";
-  margin-right: 0.55rem;
-  color: var(--tinta-suave);
-}
-
 /* Manecilla de imprenta que señala la entrada al juego. */
 .hoja__mano {
   font-size: 1.6rem;
@@ -671,7 +706,7 @@ a.hoja__cuerpo:hover .hoja__mano {
   transform: translateX(3px);
 }
 
-/* Marcas en la esquina: «nuevo», «próximamente», «hecho». */
+/* Marcas en la esquina: «nuevo», «próximamente». */
 .hoja__marcas {
   position: absolute;
   top: 0.65rem;
@@ -705,18 +740,6 @@ a.hoja__cuerpo:hover .hoja__mano {
   color: var(--tinta-suave);
 }
 
-/* Sello de caucho de «hecho». */
-.marca--hecho {
-  border: 2px solid var(--acento-texto);
-  color: var(--acento-texto);
-  transform: rotate(-7deg);
-  opacity: 0.9;
-}
-
-.hoja--hecho .hoja__icono {
-  filter: saturate(0.75);
-}
-
 .hoja--proximamente .hoja__cuerpo {
   border-style: dashed;
   border-top-style: solid;
@@ -737,11 +760,6 @@ a.hoja__cuerpo:hover .hoja__mano {
   padding-right: 5.5rem;
 }
 
-/* Y abajo, hueco para el resultado. */
-.hoja--con-resultado .hoja__cuerpo {
-  padding-bottom: 2.3rem;
-}
-
 @media (max-width: 22rem) {
   .hoja__cuerpo {
     gap: 0.75rem;
@@ -756,6 +774,192 @@ a.hoja__cuerpo:hover .hoja__mano {
   }
   .hoja__cuerpo {
     grid-template-columns: auto 1fr;
+  }
+}
+
+/* --- Hechos hoy: en pequeño, bajo las hojas pendientes -------------------- */
+
+.hechos {
+  margin-top: 2.5rem;
+}
+
+.hechos[hidden] {
+  display: none;
+}
+
+/* Con el almanaque completo no quedan hojas: la lista sigue al sello, sin otro filete
+   bajo el de la fecha. */
+.hojas[hidden] + .hechos {
+  margin-top: 0;
+}
+
+.hojas[hidden] + .hechos .hechos__titulo {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.hechos__titulo {
+  margin: 0 0 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--regla);
+  text-align: center;
+  font-family: var(--fuente-versalitas);
+  font-weight: 400;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  color: var(--tinta-suave);
+}
+
+.hechos__titulo::before,
+.hechos__titulo::after {
+  content: "✦";
+  font-size: 0.6em;
+  vertical-align: 0.25em;
+  margin: 0 0.6em;
+  color: var(--regla);
+}
+
+.hechos__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+@media (min-width: 46rem) {
+  .hechos__lista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.75rem;
+  }
+}
+
+/* Como una entrada de índice: filete de puntos debajo. */
+.hecho__enlace {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.75rem;
+  padding: 0.3rem 0.2rem;
+  border-bottom: 1px dotted var(--regla-suave);
+  color: inherit;
+  text-decoration: none;
+}
+
+.hecho__enlace:focus-visible {
+  outline: 2px solid var(--acento-texto);
+  outline-offset: 2px;
+}
+
+.hecho__icono {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.4rem;
+  box-shadow: 0 0 0 1px var(--regla-suave);
+  background: #f4ead5;
+}
+
+.hecho__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--fuente-titulo);
+  font-size: 1.2rem;
+  line-height: 1.2;
+  color: var(--acento-texto);
+}
+
+.hecho__resultado,
+.hecho__sin-resultado {
+  white-space: nowrap;
+  font-family: var(--fuente-versalitas);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.hecho__resultado {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--acento-texto);
+}
+
+.hecho__sin-resultado {
+  color: var(--tinta-suave);
+}
+
+.hecho__puntos {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.punto {
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 1.5px solid var(--acento-texto);
+  border-radius: 50%;
+}
+
+.punto--acierto {
+  background: var(--acento-texto);
+}
+
+.hecho__resultado-racha::before {
+  content: "·";
+  margin-right: 0.55rem;
+  color: var(--tinta-suave);
+}
+
+.hecho__mano {
+  font-size: 1.15rem;
+  color: var(--acento-texto);
+  transition: transform 0.18s ease;
+}
+
+a.hecho__enlace:hover .hecho__mano {
+  transform: translateX(3px);
+}
+
+/* El juego que se acaba de hacer entra en la lista con un fundido breve. */
+.hecho--recien {
+  animation: hecho-entrada 0.7s ease-out both;
+}
+
+@keyframes hecho-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 22rem) {
+  .hecho__enlace {
+    gap: 0.5rem;
+  }
+  .hecho__mano {
+    display: none;
+  }
+  .hecho__enlace {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+}
+
+/* Al tocar una marca de la línea de progreso, su hoja o su línea se resalta un instante. */
+.resaltada > .hoja__cuerpo,
+.resaltada > .hecho__enlace {
+  outline: 3px solid var(--acento-texto);
+  outline-offset: 4px;
+  animation: resaltar 1.6s ease-in forwards;
+}
+
+@keyframes resaltar {
+  0%,
+  55% {
+    outline-color: var(--acento-texto);
+  }
+  100% {
+    outline-color: transparent;
   }
 }
 
@@ -879,7 +1083,10 @@ a.hoja__cuerpo:hover .hoja__mano {
   .portada__contenido,
   .portada__marca,
   .portada__a path,
-  .sello--estampar {
+  .sello--estampar,
+  .hecho--recien,
+  .resaltada > .hoja__cuerpo,
+  .resaltada > .hecho__enlace {
     animation: none;
   }
 }

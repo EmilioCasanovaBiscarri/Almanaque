@@ -91,6 +91,11 @@
       <div class="cabecera__fecha">
         <p class="fecha" id="fecha">&nbsp;</p>
         <p class="efemerides" id="efemerides">&nbsp;</p>
+        <!-- Una marca por juego: rellena si está hecho hoy (ver app.js). -->
+        <div class="progreso" id="progreso" role="group" aria-label="Progreso de hoy" hidden>
+          <span class="progreso__marcas" id="progreso-marcas"></span>
+          <span class="progreso__cuenta" id="progreso-cuenta"></span>
+        </div>
         <!-- Solo con todas las hojas de hoy hechas (ver app.js). -->
         <div class="completo" id="completo" hidden>
           <p class="sello" id="sello" role="img" aria-label="Almanaque completo: todas las hojas de hoy hechas">
@@ -105,6 +110,11 @@
     <main>
       <h2 class="visualmente-oculto">Juegos</h2>
       <ol class="hojas" id="hojas" aria-live="polite"></ol>
+      <!-- Los juegos hechos hoy bajan aquí, en pequeño (ver app.js). -->
+      <section class="hechos" id="hechos" hidden>
+        <h2 class="hechos__titulo" id="hechos-titulo">Hechos hoy</h2>
+        <ol class="hechos__lista" id="hechos-lista" aria-labelledby="hechos-titulo"></ol>
+      </section>
       <p class="aviso" id="aviso" hidden></p>
 
       <!-- Solo se muestra si la app no está ya instalada (ver app.js). -->
