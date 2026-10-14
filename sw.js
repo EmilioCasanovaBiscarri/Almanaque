@@ -2,7 +2,7 @@
    Cambia CACHE_VERSION en cada publicación para que todos reciban la versión nueva
    (ver README). Los juegos se cargan desde su propia URL y no pasan por aquí. */
 
-const CACHE_VERSION = 'v40';
+const CACHE_VERSION = 'v41';
 const CACHE = `almanaque-${CACHE_VERSION}`;
 
 // Archivos de la portada que se guardan al instalar.
@@ -11,6 +11,7 @@ const ARCHIVOS = [
   './',
   './index.html',
   './styles.css',
+  './historial.js',
   './app.js',
   './games.json',
   './manifest.json',

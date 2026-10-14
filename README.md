@@ -11,6 +11,8 @@ JavaScript, sin dependencias ni compilación.
 | `games.json` | **La lista de juegos.** La portada se genera a partir de aquí. |
 | `icons/` | Iconos de los juegos (SVG o PNG) y de la app. |
 | `index.html`, `styles.css`, `app.js` | La portada. No hay que tocarlos para añadir juegos. |
+| `historial.js` | Cuentas del calendario de rachas (historial, niveles de cada día, mejor racha). |
+| `tests/` | Pruebas de `historial.js` y del historial de `volver-almanaque.js` (`node --test tests/historial.test.js`). |
 | `manifest.json`, `sw.js` | PWA: instalación y funcionamiento sin conexión. |
 | `reiniciar/index.html` | Página para borrar el progreso de todos los juegos (para pruebas). |
 | `herramientas/` | Scripts para regenerar la imagen para compartir y las capturas del manifiesto. |
@@ -91,11 +93,9 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
    vuelva con la mano ☜. Se borra solo al cambiar de día.
 
    Cada llamada a `almanaqueHecho` apunta además el día en `almanaque:dias` (lista de
-   fechas `AAAA-MM-DD`). De ahí sale la racha común que la portada muestra junto al botón
-   de tema: días seguidos en que se ha terminado una partida de cualquier juego. Si hoy
-   aún no se ha jugado, la llama sale apagada y la racha de ayer sigue contando. Mientras
-   la racha sea 0 el botón no se muestra (el de tema no se mueve) y aparece en cuanto se
-   juega, también al volver de un juego sin recargar. Si el juego no está en
+   fechas `AAAA-MM-DD`), de donde sale la racha común, y el resumen del día en
+   `almanaque:historial`, para el calendario de la portada (ver «Calendario de rachas»).
+   Si el juego no está en
    `emiliocasanovabiscarri.github.io/<Nombre>/`, el id se toma de la ruta en minúsculas: debe coincidir
    con el de `games.json`.
 
@@ -185,6 +185,57 @@ siguiente hoja pendiente a la vista, y su línea entra en «Hechos hoy» con un 
 
 Todo se repinta al volver a la página (botón atrás, cambiar de app), al cambiar de día a
 medianoche y al cambiar el tema.
+
+## Calendario de rachas
+
+Arriba a la izquierda, simétrico al botón de tema, está el botón del calendario: una
+hoja de taco como la del logo y, con racha, la llama y los días seguidos. La racha
+común cuenta los días seguidos en que se ha terminado una partida de cualquier juego;
+si hoy aún no se ha jugado, la llama sale apagada y la racha de ayer sigue contando.
+Con racha 0 queda solo la hoja de taco: el botón se ve siempre.
+
+El botón abre el calendario (un `<dialog>`; se cierra con ×, Escape o tocando fuera):
+
+- «‹ Octubre MMXXVI ›»: las flechas cambian de mes, desde el mes del primer día jugado
+  hasta el de hoy.
+- Una rejilla de lunes a domingo (una tabla con `role="grid"`; cada día es un botón con
+  su `aria-label` y se recorre con las flechas, Inicio, Fin y Re Pág/Av Pág). Bajo cada
+  día, un punto tenue si no se jugó, un cuadradito con más o menos tinta según la parte
+  del almanaque hecha (hasta un tercio, hasta dos tercios, más) o, con todos los juegos
+  hechos, un sellito rojo. Hoy va recuadrado y los días por venir, apagados.
+- Al tocar un día, una línea con su detalle: «Martes, 14 de octubre · 9 de 12 juegos ·
+  22 aciertos de 27», «… · Almanaque completo · 27 aciertos de 36», «… · Jugado» o
+  «… · Sin jugar».
+- Tres cifras: la racha, la mejor racha (la tanda más larga de `almanaque:dias`, contada
+  con fechas de calendario) y los almanaques completos del mes que se ve. Debajo, cómo
+  funciona la racha y, si hoy aún no se ha jugado y hay racha, el aviso de jugar antes
+  de medianoche.
+
+Los datos salen de `almanaque:historial`, un objeto por fecha con los últimos 400 días:
+
+```json
+{ "2026-10-14": { "hechos": 9, "total": 12, "aciertos": 22, "posibles": 27 } }
+```
+
+- `hechos`: juegos hechos ese día (como en la portada: hoja en `almanaque:hechos` o con
+  resultado en `almanaque:resultados`); `total`: juegos jugables que había ese día, para
+  saber si fue completo aunque `games.json` cambie después; `aciertos` y `posibles`: la
+  suma de los resultados de ese día.
+- Lo escriben `volver-almanaque.js`, en cada llamada a `almanaqueHecho` (el día queda
+  apuntado aunque no se vuelva a la portada; sin `games.json` todavía, apunta todo menos
+  `total` y lo añade cuando llega), y la portada, al cargar y al refrescarse, con lo que
+  ve de hoy.
+- Nunca se rebaja un día: de cada campo se guarda el mayor valor visto.
+- Los días anteriores a este historial están solo en `almanaque:dias`: el calendario los
+  muestra como «jugado», con la tinta media y sin más detalle. Lo mismo un día al que le
+  falte `total`.
+
+Las cuentas están en `historial.js`; `volver-almanaque.js` lleva su propia copia de la
+fusión, porque vive en el repositorio de cada juego. Pruebas, sin dependencias:
+
+```sh
+node --test tests/historial.test.js
+```
 
 ## Almanaque completo
 
@@ -277,7 +328,7 @@ Visita `/reiniciar/` (por ejemplo <https://emiliocasanovabiscarri.github.io/Alma
 pulsa «Borrar todo». Borra las partidas, rachas y estadísticas de todos los juegos y las
 hojas hechas, los resultados de hoy y la racha común de la portada, en ese navegador:
 todo lo que esté guardado bajo `<id>:…` (con los `id` de `games.json`) y las claves
-`almanaque:hechos`, `almanaque:resultados`, `almanaque:dias`, `almanaque:completo` y `almanaque:confeti`. El modo claro u oscuro de cada juego se conserva (las claves que
+`almanaque:hechos`, `almanaque:resultados`, `almanaque:dias`, `almanaque:historial`, `almanaque:completo` y `almanaque:confeti`. El modo claro u oscuro de cada juego se conserva (las claves que
 acaban en `:tema`). Funciona porque todos los juegos comparten origen
 (`emiliocasanovabiscarri.github.io`); en local solo alcanza a los juegos servidos desde el mismo
 `localhost:puerto`. Un juego nuevo queda incluido solo si guarda bajo `<id>:`.

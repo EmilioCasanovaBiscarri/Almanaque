@@ -10,7 +10,9 @@
   var CLAVE_ALTURA = 'almanaque:altura';
   var CLAVE_DIAS = 'almanaque:dias';
   var CLAVE_COMPLETO = 'almanaque:completo';
+  var CLAVE_HISTORIAL = 'almanaque:historial';
   var VIGENCIA_ALTURA_MS = 6 * 60 * 60 * 1000;
+  var H = window.AlmanaqueHistorial; // historial.js
 
   var hojasEl = document.getElementById('hojas');
   var avisoEl = document.getElementById('aviso');
@@ -213,58 +215,368 @@
     return dias;
   }
 
-  // Días seguidos hasta hoy. Si hoy aún no se ha jugado, la racha de ayer sigue viva.
-  function calcularRacha(dias) {
-    var d = new Date();
-    var jugadoHoy = dias.indexOf(claveDeFecha(d)) !== -1;
-    if (!jugadoHoy) d.setDate(d.getDate() - 1);
-    var racha = 0;
-    while (dias.indexOf(claveDeFecha(d)) !== -1) {
-      racha++;
-      d.setDate(d.getDate() - 1);
+  /* --- Historial diario -------------------------------------------------- */
+
+  // Un resumen por día en almanaque:historial, para el calendario: juegos hechos, juegos
+  // que había y aciertos (ver historial.js). Lo apunta cada juego al llamar a
+  // almanaqueHecho y la portada con lo que ve; de cada cifra se queda la mayor.
+  function leerHistorial() {
+    try {
+      return H.limpiarHistorial(JSON.parse(leer(CLAVE_HISTORIAL) || 'null'));
+    } catch (e) {
+      return {}; /* datos corruptos: se empieza de nuevo */
     }
-    return { dias: racha, hoy: jugadoHoy };
   }
+
+  // Lo que dicen de una fecha las hojas hechas y los resultados guardados, si son de ella.
+  function resumenDelDia(fecha) {
+    var hechos = [];
+    var resultados = {};
+    try {
+      var h = JSON.parse(leer(CLAVE_HECHOS) || 'null');
+      if (h && h.fecha === fecha && Array.isArray(h.ids)) hechos = h.ids;
+    } catch (e) { /* datos corruptos */ }
+    try {
+      var r = JSON.parse(leer(CLAVE_RESULTADOS) || 'null');
+      if (r && r.fecha === fecha && r.juegos && typeof r.juegos === 'object') resultados = r.juegos;
+    } catch (e) { /* datos corruptos */ }
+
+    var datos = {};
+    var ids;
+    if (juegos.length) {
+      // La misma regla que las hojas; cuántos juegos había solo se sabe de hoy.
+      var jugables = juegos.filter(esJugable);
+      ids = jugables.filter(function (j) { return estaHecho(j, hechos, resultados); })
+        .map(function (j) { return j.id; });
+      if (fecha === claveDeHoy()) datos.total = jugables.length;
+    } else {
+      ids = hechos.concat(Object.keys(resultados)).filter(function (id, i, lista) {
+        return typeof id === 'string' && lista.indexOf(id) === i;
+      });
+    }
+    datos.hechos = ids.length;
+    datos.aciertos = 0;
+    datos.posibles = 0;
+    ids.forEach(function (id) {
+      var r = resultados[id];
+      if (r && typeof r.aciertos === 'number' && typeof r.total === 'number' && r.total > 0) {
+        datos.aciertos += Math.min(Math.max(0, r.aciertos), r.total);
+        datos.posibles += r.total;
+      }
+    });
+    return datos;
+  }
+
+  function apuntarHistorial() {
+    var historial = leerHistorial();
+    var antes = JSON.stringify(historial);
+    diasALaVista().forEach(function (fecha) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return;
+      var datos = resumenDelDia(fecha);
+      if (datos.hechos) historial = H.fusionarHistorial(historial, fecha, datos);
+    });
+    if (JSON.stringify(historial) !== antes) guardar(CLAVE_HISTORIAL, JSON.stringify(historial));
+    return historial;
+  }
+
+  /* --- Botón del calendario y la racha ----------------------------------- */
+
+  // La hoja de taco sale siempre; la llama y la cifra, solo con racha. La llama se
+  // enciende cuando ya se ha jugado hoy.
+  var botonRacha = document.getElementById('racha');
+  var dias = [];
+  var historial = {};
+  var racha = { dias: 0, hoy: false };
 
   function pintarRacha() {
-    var racha = calcularRacha(apuntarDias());
-    var caja = document.getElementById('racha');
-    // Sin racha no hay nada que contar: el botón no sale hasta el primer día jugado.
-    caja.hidden = !racha.dias;
-    if (!racha.dias) mostrarNotaRacha(false);
+    dias = apuntarDias();
+    historial = apuntarHistorial();
+    racha = H.racha(dias, claveDeHoy());
+    document.getElementById('racha-llama').hidden = !racha.dias;
     document.getElementById('racha-cifra').textContent = racha.dias;
-    caja.classList.toggle('racha--hoy', racha.hoy);
-    var dias = racha.dias + (racha.dias === 1 ? ' día seguido' : ' días seguidos');
-    caja.setAttribute('aria-label', 'Racha: ' + dias + '. Más información');
-    document.getElementById('racha-titulo').textContent = 'Racha de ' + dias;
-    var hoy;
-    if (racha.hoy) hoy = 'Hoy ya has jugado: la llama está encendida y la racha, a salvo.';
-    else if (racha.dias) hoy = 'Hoy aún no has jugado: juega antes de medianoche para no perderla.';
-    else hoy = 'Juega hoy a cualquier juego para empezarla.';
-    document.getElementById('racha-hoy').textContent = hoy;
+    botonRacha.classList.toggle('racha--hoy', racha.hoy);
+    botonRacha.classList.toggle('racha--con-racha', !!racha.dias);
+    botonRacha.setAttribute('aria-label', 'Calendario y racha: ' +
+      (racha.dias ? diasEnLetra(racha.dias) + ' seguido' + (racha.dias === 1 ? '' : 's') : 'sin racha'));
+    if (calendarioAbierto()) pintarCalendario();
   }
 
-  // Al tocar la racha se abre o cierra la nota que la explica.
-  var botonRacha = document.getElementById('racha');
-  var notaRacha = document.getElementById('racha-nota');
-
-  function mostrarNotaRacha(abrir) {
-    notaRacha.hidden = !abrir;
-    botonRacha.setAttribute('aria-expanded', String(abrir));
+  function diasEnLetra(n) {
+    return n + (n === 1 ? ' día' : ' días');
   }
 
-  botonRacha.addEventListener('click', function () {
-    mostrarNotaRacha(notaRacha.hidden);
+  /* --- Calendario de rachas ---------------------------------------------- */
+
+  var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+    'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  var DIAS_SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+  var calendario = document.getElementById('calendario');
+  var rejillaDias = document.getElementById('calendario-dias');
+  var detalleEl = document.getElementById('calendario-detalle');
+  var mesVisto = null; // { anio, mes }, con el mes desde 0
+  var diaElegido = null;
+
+  function calendarioAbierto() {
+    return calendario.hasAttribute('open');
+  }
+
+  function mayuscula(texto) {
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
+  function claveDeMes(anio, mes) {
+    return anio * 12 + mes;
+  }
+
+  // Hasta dónde se puede ir: del mes del primer día jugado al mes de hoy.
+  function primerMes() {
+    var primero = dias.concat(Object.keys(historial)).sort()[0];
+    var d = primero ? H.fechaDeClave(primero) : new Date();
+    return claveDeMes(d.getFullYear(), d.getMonth());
+  }
+
+  function mesDeHoy() {
+    var hoy = new Date();
+    return claveDeMes(hoy.getFullYear(), hoy.getMonth());
+  }
+
+  function nivelDe(fecha) {
+    return H.nivelDelDia(historial[fecha], dias.indexOf(fecha) !== -1);
+  }
+
+  // «9 de 12 juegos», «almanaque completo», «jugado» o «sin jugar».
+  function resumenDe(fecha) {
+    var nivel = nivelDe(fecha);
+    var dia = historial[fecha];
+    if (nivel === 'completo') return 'almanaque completo';
+    if (nivel === 'sin-jugar') return fecha === claveDeHoy() ? 'aún sin jugar' : 'sin jugar';
+    if (dia && dia.hechos) {
+      if (dia.total) return dia.hechos + ' de ' + dia.total + ' juegos';
+      return dia.hechos + (dia.hechos === 1 ? ' juego' : ' juegos');
+    }
+    return 'jugado';
+  }
+
+  // «Martes, 14 de octubre · 9 de 12 juegos · 22 aciertos de 27».
+  function textoDelDia(fecha) {
+    var d = H.fechaDeClave(fecha);
+    var partes = [mayuscula(DIAS_SEMANA[d.getDay()]) + ', ' + d.getDate() + ' de ' + MESES[d.getMonth()],
+      mayuscula(resumenDe(fecha))];
+    var dia = historial[fecha];
+    if (nivelDe(fecha) !== 'sin-jugar' && dia && dia.posibles > 0) {
+      partes.push(dia.aciertos + (dia.aciertos === 1 ? ' acierto' : ' aciertos') + ' de ' + dia.posibles);
+    }
+    return partes.join(' · ');
+  }
+
+  function pintarDetalle() {
+    var visible = diaElegido && nodoDelDia(diaElegido);
+    detalleEl.textContent = visible ? textoDelDia(diaElegido) : 'Toca un día para ver cómo fue.';
+    detalleEl.classList.toggle('calendario__detalle--vacio', !visible);
+  }
+
+  function nodoDelDia(fecha) {
+    return rejillaDias.querySelector('[data-fecha="' + fecha + '"]');
+  }
+
+  function crearDia(fecha, hoy) {
+    var numero = String(+fecha.slice(8));
+    var td = el('td');
+    td.setAttribute('role', 'gridcell');
+    if (fecha > hoy) {
+      // Los días que aún no han llegado, apagados y fuera del recorrido.
+      var futuro = el('span', 'dia dia--futuro');
+      futuro.appendChild(el('span', 'dia__numero', numero));
+      futuro.appendChild(el('span', 'dia__marca'));
+      td.setAttribute('aria-disabled', 'true');
+      td.appendChild(futuro);
+      return td;
+    }
+    var nivel = nivelDe(fecha);
+    var boton = el('button', 'dia dia--' + nivel + (fecha === hoy ? ' dia--hoy' : ''));
+    boton.type = 'button';
+    boton.tabIndex = -1;
+    boton.dataset.fecha = fecha;
+    var d = H.fechaDeClave(fecha);
+    boton.setAttribute('aria-label', d.getDate() + ' de ' + MESES[d.getMonth()] +
+      (fecha === hoy ? ', hoy' : '') + ': ' + resumenDe(fecha));
+    if (fecha === hoy) boton.setAttribute('aria-current', 'date');
+    boton.appendChild(el('span', 'dia__numero', numero));
+    var marca = el('span', 'dia__marca dia__marca--' + nivel);
+    marca.setAttribute('aria-hidden', 'true');
+    boton.appendChild(marca);
+    td.setAttribute('aria-selected', String(fecha === diaElegido));
+    td.appendChild(boton);
+    return td;
+  }
+
+  function pintarCalendario(conPaso) {
+    var hoy = claveDeHoy();
+    var anio = mesVisto.anio;
+    var mes = mesVisto.mes;
+    var visto = claveDeMes(anio, mes);
+
+    document.getElementById('calendario-mes').textContent = mayuscula(MESES[mes]) + ' ' + romano(anio);
+    document.getElementById('calendario-antes').disabled = visto <= primerMes();
+    document.getElementById('calendario-despues').disabled = visto >= mesDeHoy();
+
+    var filas = document.createDocumentFragment();
+    H.semanasDelMes(anio, mes).forEach(function (semana) {
+      var tr = el('tr');
+      semana.forEach(function (fecha) {
+        tr.appendChild(fecha ? crearDia(fecha, hoy) : el('td'));
+      });
+      filas.appendChild(tr);
+    });
+    rejillaDias.replaceChildren(filas);
+    darFoco(null);
+
+    var rejilla = document.getElementById('calendario-rejilla');
+    rejilla.classList.remove('calendario__rejilla--paso');
+    if (conPaso) {
+      void rejilla.offsetWidth; // para que el fundido vuelva a empezar
+      rejilla.classList.add('calendario__rejilla--paso');
+    }
+
+    document.getElementById('calendario-racha').textContent = diasEnLetra(racha.dias);
+    document.getElementById('calendario-mejor').textContent = diasEnLetra(Math.max(racha.dias, H.mejorRacha(dias)));
+    document.getElementById('calendario-completos').textContent = H.completosDelMes(historial, anio, mes);
+    document.getElementById('calendario-completos-nombre').textContent =
+      visto === mesDeHoy() ? 'Completos este mes' : 'Completos en ' + MESES[mes];
+    document.getElementById('calendario-hoy').hidden = racha.hoy || !racha.dias;
+    pintarDetalle();
+  }
+
+  // Solo un día de la rejilla entra con el tabulador (el elegido, hoy o el primero); las
+  // flechas llevan a los demás.
+  function darFoco(fecha) {
+    var botones = rejillaDias.querySelectorAll('button.dia');
+    if (!botones.length) return null;
+    var elegido = (fecha && nodoDelDia(fecha)) || (diaElegido && nodoDelDia(diaElegido)) ||
+      nodoDelDia(claveDeHoy()) || botones[0];
+    for (var i = 0; i < botones.length; i++) botones[i].tabIndex = botones[i] === elegido ? 0 : -1;
+    return elegido;
+  }
+
+  function verMes(anio, mes, conPaso) {
+    var d = new Date(anio, mes, 1, 12);
+    var clave = claveDeMes(d.getFullYear(), d.getMonth());
+    if (clave < primerMes() || clave > mesDeHoy()) return false;
+    mesVisto = { anio: d.getFullYear(), mes: d.getMonth() };
+    pintarCalendario(conPaso);
+    return true;
+  }
+
+  function elegirDia(fecha) {
+    diaElegido = fecha;
+    var celdas = rejillaDias.querySelectorAll('[aria-selected]');
+    for (var i = 0; i < celdas.length; i++) {
+      var boton = celdas[i].querySelector('button.dia');
+      celdas[i].setAttribute('aria-selected', String(!!boton && boton.dataset.fecha === fecha));
+    }
+    darFoco(fecha);
+    pintarDetalle();
+  }
+
+  // Lleva el foco a otro día, cambiando de mes si hace falta; nunca más allá de hoy ni
+  // antes del primer mes.
+  function irAlDia(fecha) {
+    var hoy = claveDeHoy();
+    if (fecha > hoy) fecha = hoy;
+    var d = H.fechaDeClave(fecha);
+    var visto = claveDeMes(mesVisto.anio, mesVisto.mes);
+    var destino = claveDeMes(d.getFullYear(), d.getMonth());
+    if (destino < primerMes()) return;
+    if (destino !== visto) verMes(d.getFullYear(), d.getMonth(), true);
+    var boton = darFoco(fecha);
+    if (boton) boton.focus();
+  }
+
+  function sumarDias(fecha, n) {
+    var d = H.fechaDeClave(fecha);
+    return H.claveDeFecha(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, 12));
+  }
+
+  // El mismo día en otro mes (o el último, si ese mes es más corto).
+  function sumarMeses(fecha, n) {
+    var d = H.fechaDeClave(fecha);
+    var largo = new Date(d.getFullYear(), d.getMonth() + n + 1, 0, 12).getDate();
+    return H.claveDeFecha(new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), largo), 12));
+  }
+
+  rejillaDias.addEventListener('click', function (e) {
+    var boton = e.target.closest && e.target.closest('button.dia');
+    if (boton) elegirDia(boton.dataset.fecha);
   });
-  // Se cierra al tocar fuera o con Escape.
-  document.addEventListener('click', function (e) {
-    if (!notaRacha.hidden && !notaRacha.contains(e.target) && !botonRacha.contains(e.target)) mostrarNotaRacha(false);
+
+  rejillaDias.addEventListener('keydown', function (e) {
+    var boton = e.target.closest && e.target.closest('button.dia');
+    if (!boton) return;
+    var fecha = boton.dataset.fecha;
+    var semana = (H.fechaDeClave(fecha).getDay() + 6) % 7; // 0 = lunes
+    var destino = null;
+    if (e.key === 'ArrowLeft') destino = sumarDias(fecha, -1);
+    else if (e.key === 'ArrowRight') destino = sumarDias(fecha, 1);
+    else if (e.key === 'ArrowUp') destino = sumarDias(fecha, -7);
+    else if (e.key === 'ArrowDown') destino = sumarDias(fecha, 7);
+    else if (e.key === 'Home') destino = sumarDias(fecha, -semana);
+    else if (e.key === 'End') destino = sumarDias(fecha, 6 - semana);
+    else if (e.key === 'PageUp') destino = sumarMeses(fecha, -1);
+    else if (e.key === 'PageDown') destino = sumarMeses(fecha, 1);
+    if (!destino) return;
+    e.preventDefault();
+    irAlDia(destino);
   });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !notaRacha.hidden) {
-      mostrarNotaRacha(false);
+
+  var flechaAntes = document.getElementById('calendario-antes');
+  var flechaDespues = document.getElementById('calendario-despues');
+
+  // Si la flecha se apaga al llegar al límite, el foco pasa a la otra.
+  function pasarMes(paso, flecha, otra) {
+    verMes(mesVisto.anio, mesVisto.mes + paso, true);
+    if (flecha.disabled && !otra.disabled) otra.focus();
+  }
+
+  flechaAntes.addEventListener('click', function () { pasarMes(-1, flechaAntes, flechaDespues); });
+  flechaDespues.addEventListener('click', function () { pasarMes(1, flechaDespues, flechaAntes); });
+
+  function abrirCalendario() {
+    var hoy = new Date();
+    pintarRacha();
+    diaElegido = null;
+    mesVisto = { anio: hoy.getFullYear(), mes: hoy.getMonth() };
+    pintarCalendario(false);
+    if (calendario.showModal) calendario.showModal();
+    else calendario.setAttribute('open', '');
+    var boton = darFoco(null);
+    if (boton) {
+      try {
+        boton.focus({ preventScroll: true });
+      } catch (e) { /* navegador antiguo */ }
+    }
+  }
+
+  function cerrarCalendario() {
+    if (calendario.close) calendario.close();
+    else {
+      calendario.removeAttribute('open');
       botonRacha.focus();
     }
+  }
+
+  botonRacha.addEventListener('click', abrirCalendario);
+  document.getElementById('calendario-cerrar').addEventListener('click', cerrarCalendario);
+  // Tocar fuera de la hoja también la cierra (el diálogo ocupa solo el fondo).
+  calendario.addEventListener('click', function (e) {
+    if (e.target === calendario) cerrarCalendario();
+  });
+  calendario.addEventListener('close', function () {
+    botonRacha.focus();
+  });
+  // Sin <dialog> (navegadores antiguos), Escape se atiende a mano.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !calendario.showModal && calendarioAbierto()) cerrarCalendario();
   });
 
   /* --- Volver a la misma altura ------------------------------------------ */
@@ -665,6 +977,8 @@
         var recien = recienHecho(datos);
         if (recien) recienHechos = [datos.id];
         pintarHojas();
+        // Ya se sabe cuántos juegos hay hoy: el historial apunta si el día está completo.
+        pintarRacha();
         volverALaAltura(datos, recien);
       })
       .catch(function (err) {

@@ -69,16 +69,14 @@
 
   <div class="pagina">
     <header class="cabecera">
-      <button class="racha" type="button" id="racha" hidden aria-expanded="false" aria-controls="racha-nota" aria-label="Racha: 0 días seguidos">
-        <svg class="racha__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22c-4.4 0-7-3-7-6.6 0-3.8 2.9-5.8 4.4-8.8.6 2 1.5 3 2.6 3.4-.4-3.4 1-6.2 3-8 .4 3.6 4 6.6 4 12.6 0 4.4-2.6 7.4-7 7.4zm0-2c1.8 0 3-1.3 3-3 0-1.8-.4-3.4-1.6-4.6.2.8.2 1.6-.2 2.4-.8-.2-1.6-.8-2-2.2C10.4 14.2 9 15.2 9 17c0 1.7 1.2 3 3 3z"/></svg>
-        <span class="racha__cifra" id="racha-cifra">0</span>
+      <!-- Calendario y racha común: la llama y la cifra solo con racha (ver app.js). -->
+      <button class="racha" type="button" id="racha" aria-haspopup="dialog" aria-controls="calendario" aria-label="Calendario y racha">
+        <svg class="racha__calendario" viewBox="0 0 24 24" aria-hidden="true"><path class="racha__calendario-hoja" d="M5.5 5h13a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5z"/><path class="racha__calendario-faja" d="M5.5 5h13a1.5 1.5 0 0 1 1.5 1.5V9.5H4V6.5A1.5 1.5 0 0 1 5.5 5z"/><path class="racha__calendario-anillas" d="M8.5 3v3.5M15.5 3v3.5"/><path class="racha__calendario-a" d="M12 11.6l-2.6 6.2M12 11.6l2.6 6.2M10.4 15.6h3.2"/></svg>
+        <span class="racha__llama" id="racha-llama" hidden>
+          <svg class="racha__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22c-4.4 0-7-3-7-6.6 0-3.8 2.9-5.8 4.4-8.8.6 2 1.5 3 2.6 3.4-.4-3.4 1-6.2 3-8 .4 3.6 4 6.6 4 12.6 0 4.4-2.6 7.4-7 7.4zm0-2c1.8 0 3-1.3 3-3 0-1.8-.4-3.4-1.6-4.6.2.8.2 1.6-.2 2.4-.8-.2-1.6-.8-2-2.2C10.4 14.2 9 15.2 9 17c0 1.7 1.2 3 3 3z"/></svg>
+          <span class="racha__cifra" id="racha-cifra">0</span>
+        </span>
       </button>
-
-      <div class="racha__nota" id="racha-nota" hidden>
-        <p class="racha__nota-titulo" id="racha-titulo">Racha</p>
-        <p>Cuenta los días seguidos en que has jugado. Para mantenerla basta con terminar una partida de cualquiera de los juegos del Almanaque cada día; si pasa un día sin jugar, vuelve a empezar.</p>
-        <p class="racha__nota-hoy" id="racha-hoy"></p>
-      </div>
 
       <button class="tema" type="button" id="boton-tema" aria-label="Cambiar entre modo claro y oscuro">
         <span aria-hidden="true" class="tema__icono"></span>
@@ -128,6 +126,46 @@
       </div>
     </main>
 
+    <!-- Calendario de rachas: se pinta al abrirlo (ver app.js). -->
+    <dialog class="calendario" id="calendario" aria-labelledby="calendario-titulo">
+      <div class="calendario__hoja">
+        <button class="calendario__cerrar" type="button" id="calendario-cerrar" aria-label="Cerrar">×</button>
+        <p class="calendario__antetitulo" id="calendario-titulo">Calendario</p>
+        <div class="calendario__mes">
+          <button class="calendario__flecha" type="button" id="calendario-antes" aria-label="Mes anterior">‹</button>
+          <h2 class="calendario__nombre" id="calendario-mes" aria-live="polite">&nbsp;</h2>
+          <button class="calendario__flecha" type="button" id="calendario-despues" aria-label="Mes siguiente">›</button>
+        </div>
+        <table class="calendario__rejilla" role="grid" id="calendario-rejilla" aria-labelledby="calendario-mes">
+          <thead>
+            <tr>
+              <th scope="col" abbr="lunes">L</th>
+              <th scope="col" abbr="martes">M</th>
+              <th scope="col" abbr="miércoles">X</th>
+              <th scope="col" abbr="jueves">J</th>
+              <th scope="col" abbr="viernes">V</th>
+              <th scope="col" abbr="sábado">S</th>
+              <th scope="col" abbr="domingo">D</th>
+            </tr>
+          </thead>
+          <tbody id="calendario-dias"></tbody>
+        </table>
+        <p class="calendario__detalle" id="calendario-detalle" aria-live="polite"></p>
+        <p class="calendario__leyenda" aria-hidden="true">
+          <span><span class="dia__marca dia__marca--completo"></span> completo</span>
+          <span><span class="dia__marca dia__marca--jugado-3"></span> jugado</span>
+          <span><span class="dia__marca dia__marca--sin-jugar"></span> sin jugar</span>
+        </p>
+        <dl class="calendario__cifras">
+          <div><dt>Racha</dt><dd id="calendario-racha">0</dd></div>
+          <div><dt>Mejor racha</dt><dd id="calendario-mejor">0</dd></div>
+          <div><dt id="calendario-completos-nombre">Completos este mes</dt><dd id="calendario-completos">0</dd></div>
+        </dl>
+        <p class="calendario__nota">Cuenta un día cuando terminas al menos un juego. Si pasa un día sin jugar, la racha vuelve a empezar.</p>
+        <p class="calendario__nota calendario__nota--hoy" id="calendario-hoy" hidden>Hoy aún no has jugado: juega antes de medianoche para no perderla.</p>
+      </div>
+    </dialog>
+
     <footer class="pie">
       <p class="pie__floron" aria-hidden="true">❦</p>
       <p>Juegos nuevos cada medianoche.</p>
@@ -136,6 +174,7 @@
     </footer>
   </div>
 
+  <script src="historial.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

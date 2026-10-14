@@ -497,18 +497,21 @@ body::before {
   outline-offset: 3px;
 }
 
-/* Racha común: días seguidos con alguna partida, a la izquierda del botón de tema.
-   La llama se enciende cuando ya se ha jugado hoy. */
+/* Calendario y racha común, arriba a la izquierda, simétrico al botón de tema: una hoja de
+   taco como la del logo y, con racha, la llama y los días seguidos. La llama se enciende
+   cuando ya se ha jugado hoy. */
 .racha {
   position: absolute;
   top: 0;
-  right: 3.25rem;
+  left: 0;
+  min-width: 2.75rem;
   height: 2.75rem;
   margin: 0;
-  padding: 0 0.85rem 0 0.7rem;
+  padding: 0;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.45rem;
   border: 1px solid var(--regla-suave);
   border-radius: 1.375rem;
   background: var(--hoja);
@@ -519,8 +522,8 @@ body::before {
   cursor: pointer;
 }
 
-.racha[hidden] {
-  display: none;
+.racha--con-racha {
+  padding: 0 0.85rem 0 0.7rem;
 }
 
 .racha:focus-visible {
@@ -528,41 +531,34 @@ body::before {
   outline-offset: 3px;
 }
 
-/* Nota que se abre al tocar la racha, como un papelito bajo los botones. */
-.racha__nota {
-  position: absolute;
-  top: 3.4rem;
-  right: 0;
-  z-index: 2;
-  width: min(19rem, 100%);
-  padding: 0.85rem 1rem 0.9rem;
-  border: 1px solid var(--regla);
-  background: var(--hoja);
-  box-shadow:
-    inset 0 0 0 4px var(--hoja),
-    inset 0 0 0 5px var(--regla-suave),
-    0 12px 22px -12px var(--sombra);
-  text-align: left;
-  font-size: 1rem;
-  line-height: 1.4;
+.racha__calendario {
+  flex: none;
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.racha__nota[hidden] {
+/* La faja de arriba, en el rojo de tinta del logo. */
+.racha__calendario-faja {
+  fill: var(--sello);
+}
+
+.racha__calendario-a {
+  stroke-width: 1.2;
+}
+
+.racha__llama {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.racha__llama[hidden] {
   display: none;
-}
-
-.cabecera .racha__nota p + p {
-  margin-top: 0.5rem;
-}
-
-.racha__nota-titulo {
-  font-family: var(--fuente-titulo);
-  font-size: 1.2rem;
-}
-
-.racha__nota-hoy {
-  font-style: italic;
-  color: var(--tinta-suave);
 }
 
 .racha__icono {
@@ -578,7 +574,7 @@ body::before {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* En pantallas estrechas los dos botones pisarían el antetítulo: este baja. */
+/* En pantallas estrechas los botones pisarían el antetítulo: este baja. */
 @media (max-width: 34rem) {
   .cabecera {
     padding-top: 3.6rem;
@@ -593,6 +589,363 @@ body::before {
   fill: var(--rubrica);
   fill-rule: evenodd;
   stroke: var(--rubrica);
+}
+
+/* --- Calendario de rachas ------------------------------------------------ */
+
+/* El diálogo es solo el fondo oscurecido; encima, una hoja con el doble filete de la casa. */
+.calendario {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  border: 0;
+  background: rgba(28, 18, 10, 0.55);
+  color: var(--tinta);
+  overflow: auto;
+}
+
+.calendario[open] {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  animation: calendario-fondo 0.2s ease-out both;
+}
+
+.calendario::backdrop {
+  background: transparent;
+}
+
+.calendario__hoja {
+  position: relative;
+  width: min(25rem, 100%);
+  margin: auto;
+  padding: 1.1rem 1rem 1.15rem;
+  border: 1px solid var(--regla);
+  border-top: 5px solid var(--sello);
+  background: var(--hoja);
+  box-shadow:
+    inset 0 0 0 5px var(--hoja),
+    inset 0 0 0 6px var(--regla-suave),
+    0 18px 40px -12px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.4;
+  animation: calendario-hoja 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.calendario p {
+  margin: 0;
+}
+
+.calendario__cerrar {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  background: none;
+  color: var(--tinta-suave);
+  font: inherit;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calendario__antetitulo {
+  font-family: var(--fuente-versalitas);
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  color: var(--tinta-suave);
+}
+
+.calendario__antetitulo::before,
+.calendario__antetitulo::after {
+  content: "✦";
+  font-size: 0.6em;
+  vertical-align: 0.25em;
+  margin: 0 0.6em;
+  color: var(--regla);
+}
+
+.calendario__mes {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr 2.75rem;
+  align-items: center;
+  margin: 0.1rem 0 0.4rem;
+}
+
+.calendario__nombre {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.calendario__flecha {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  font-family: var(--fuente-titulo);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calendario__flecha:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.calendario__cerrar:focus-visible,
+.calendario__flecha:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: -4px;
+}
+
+.calendario__rejilla {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.calendario__rejilla--paso tbody {
+  animation: calendario-paso 0.25s ease-out both;
+}
+
+.calendario__rejilla th {
+  padding: 0.25rem 0 0.3rem;
+  border-bottom: 1px solid var(--regla-suave);
+  font-family: var(--fuente-versalitas);
+  font-weight: 400;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--tinta-suave);
+}
+
+.calendario__rejilla td {
+  padding: 1px;
+}
+
+.calendario__rejilla tbody tr:first-child td {
+  padding-top: 0.3rem;
+}
+
+.dia {
+  width: 100%;
+  height: 3.1rem;
+  margin: 0;
+  padding: 0.25rem 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  color: var(--tinta);
+  font: inherit;
+  cursor: pointer;
+}
+
+.dia__numero {
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.dia--futuro {
+  cursor: default;
+  opacity: 0.3;
+}
+
+/* Hoy, recuadrado como una fecha señalada a mano. */
+.dia--hoy {
+  border-color: var(--tinta-suave);
+}
+
+.dia--hoy .dia__numero {
+  font-weight: 600;
+}
+
+[aria-selected="true"] > .dia {
+  background: var(--papel);
+  border-color: var(--regla);
+}
+
+.dia:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: 0;
+}
+
+@media (hover: hover) {
+  button.dia:hover {
+    background: var(--papel);
+  }
+}
+
+/* Marcas de cada día: un punto tenue, un cuadradito con más o menos tinta o el sello. */
+.dia__marca {
+  display: block;
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.dia__marca--sin-jugar {
+  width: 0.3rem;
+  height: 0.3rem;
+  margin: 0.275rem;
+  border-radius: 50%;
+  background: var(--regla-suave);
+}
+
+.dia__marca--jugado-1,
+.dia__marca--jugado-2,
+.dia__marca--jugado-3 {
+  width: 0.7rem;
+  height: 0.7rem;
+  margin: 0.075rem;
+  border: 1.5px solid var(--tinta);
+  border-radius: 1px;
+}
+
+.dia__marca--jugado-1 {
+  background: color-mix(in oklab, var(--tinta) 20%, transparent);
+}
+
+.dia__marca--jugado-2 {
+  background: color-mix(in oklab, var(--tinta) 55%, transparent);
+}
+
+.dia__marca--jugado-3 {
+  background: var(--tinta);
+}
+
+/* El sellito del almanaque completo: el de la portada en pequeño, recto. */
+.dia__marca--completo {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: -0.1rem;
+  border: 3.5px double var(--sello);
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--sello) 22%, transparent);
+}
+
+.dia--completo .dia__numero {
+  color: var(--sello);
+  font-weight: 600;
+}
+
+.calendario__detalle {
+  min-height: 2.8em;
+  margin-top: 0.55rem !important;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--regla-suave);
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+.calendario__detalle--vacio {
+  font-style: italic;
+  color: var(--tinta-suave);
+}
+
+.calendario__leyenda {
+  margin-top: 0.45rem !important;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+
+.calendario__leyenda > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.calendario__leyenda .dia__marca {
+  flex: none;
+}
+
+/* Tres cifras entre filetes dobles, como las estadísticas de los juegos. */
+.calendario__cifras {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0.8rem 0 0.7rem;
+  padding: 0.5rem 0;
+  border-top: 3px double var(--regla);
+  border-bottom: 3px double var(--regla);
+}
+
+.calendario__cifras > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+}
+
+.calendario__cifras dt {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  color: var(--tinta-suave);
+}
+
+.calendario__cifras dd {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-weight: 500;
+  font-size: 1.35rem;
+  line-height: 1.3;
+  font-variant-numeric: lining-nums;
+}
+
+.calendario__nota {
+  font-size: 0.92rem;
+  color: var(--tinta-suave);
+}
+
+.calendario__nota--hoy {
+  margin-top: 0.35rem !important;
+  font-style: italic;
+  color: var(--rubrica);
+}
+
+.calendario__nota[hidden] {
+  display: none;
+}
+
+@keyframes calendario-fondo {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes calendario-hoja {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes calendario-paso {
+  from {
+    opacity: 0;
+  }
 }
 
 /* --- Hojas (tarjetas de juego) ------------------------------------------- */
@@ -1096,6 +1449,9 @@ a.hecho__enlace:hover .hecho__mano {
   .portada__a path,
   .sello--estampar,
   .hecho--recien,
+  .calendario[open],
+  .calendario__hoja,
+  .calendario__rejilla--paso tbody,
   .resaltada > .hoja__cuerpo,
   .resaltada > .hecho__enlace {
     animation: none;
