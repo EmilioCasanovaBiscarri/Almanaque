@@ -11,6 +11,7 @@
   var CLAVE_DIAS = 'almanaque:dias';
   var CLAVE_COMPLETO = 'almanaque:completo';
   var CLAVE_HISTORIAL = 'almanaque:historial';
+  var CLAVE_SELLO_CALENDARIO = 'almanaque:calendario-sello';
   var VIGENCIA_ALTURA_MS = 6 * 60 * 60 * 1000;
   var H = window.AlmanaqueHistorial; // historial.js
 
@@ -301,9 +302,7 @@
     if (calendarioAbierto()) pintarCalendario();
   }
 
-  function diasEnLetra(n) {
-    return n + (n === 1 ? ' día' : ' días');
-  }
+  var diasEnLetra = H.diasEnLetra;
 
   /* --- Calendario de rachas ---------------------------------------------- */
 
@@ -316,6 +315,7 @@
   var detalleEl = document.getElementById('calendario-detalle');
   var mesVisto = null; // { anio, mes }, con el mes desde 0
   var diaElegido = null;
+  var estamparHoy = false; // el sellito de hoy, solo en la pintura que abre el calendario
 
   function calendarioAbierto() {
     return calendario.hasAttribute('open');
@@ -370,10 +370,36 @@
     return partes.join(' · ');
   }
 
-  function pintarDetalle() {
-    var visible = diaElegido && nodoDelDia(diaElegido);
-    detalleEl.textContent = visible ? textoDelDia(diaElegido) : 'Toca un día para ver cómo fue.';
-    detalleEl.classList.toggle('calendario__detalle--vacio', !visible);
+  // Cómo va hoy, con los mismos datos que la portada: los juegos jugables de games.json
+  // y los hechos; sin games.json todavía, lo apuntado en el historial.
+  function lineaDeHoy() {
+    var jugables = juegos.filter(esJugable);
+    var hechos;
+    var total;
+    if (jugables.length) {
+      var ids = hechosHoy();
+      var resultados = resultadosHoy();
+      hechos = jugables.filter(function (j) { return estaHecho(j, ids, resultados); }).length;
+      total = jugables.length;
+    } else {
+      var dia = historial[claveDeHoy()] || {};
+      hechos = dia.hechos || 0;
+      total = dia.total || 0;
+    }
+    return H.lineaDeHoy({ hechos: hechos, total: total, jugado: racha.hoy, racha: racha.dias, ahora: new Date() });
+  }
+
+  // El detalle del día elegido o, sin día elegido (o con hoy), la línea de hoy. La cuenta
+  // atrás de cada minuto la pinta en silencio (aria-live="off"): los lectores de pantalla
+  // la oyen al abrir el calendario y al tocar un día, no una vez por minuto.
+  function pintarDetalle(enSilencio) {
+    var deUnDia = diaElegido && diaElegido !== claveDeHoy() && nodoDelDia(diaElegido);
+    var linea = deUnDia ? null : lineaDeHoy();
+    var texto = deUnDia ? textoDelDia(diaElegido) : linea.texto;
+    detalleEl.setAttribute('aria-live', enSilencio ? 'off' : 'polite');
+    if (detalleEl.textContent !== texto) detalleEl.textContent = texto;
+    detalleEl.classList.toggle('calendario__detalle--hoy', !deUnDia);
+    detalleEl.classList.toggle('calendario__detalle--aviso', !deUnDia && linea.tipo === 'aviso');
   }
 
   function nodoDelDia(fecha) {
@@ -403,7 +429,8 @@
       (fecha === hoy ? ', hoy' : '') + ': ' + resumenDe(fecha));
     if (fecha === hoy) boton.setAttribute('aria-current', 'date');
     boton.appendChild(el('span', 'dia__numero', numero));
-    var marca = el('span', 'dia__marca dia__marca--' + nivel);
+    var marca = el('span', 'dia__marca dia__marca--' + nivel +
+      (fecha === hoy && nivel === 'completo' && estamparHoy ? ' dia__marca--estampar' : ''));
     marca.setAttribute('aria-hidden', 'true');
     boton.appendChild(marca);
     td.setAttribute('aria-selected', String(fecha === diaElegido));
@@ -439,13 +466,31 @@
       rejilla.classList.add('calendario__rejilla--paso');
     }
 
-    document.getElementById('calendario-racha').textContent = diasEnLetra(racha.dias);
-    document.getElementById('calendario-mejor').textContent = diasEnLetra(Math.max(racha.dias, H.mejorRacha(dias)));
+    pintarCifrasDeRacha();
     document.getElementById('calendario-completos').textContent = H.completosDelMes(historial, anio, mes);
     document.getElementById('calendario-completos-nombre').textContent =
       visto === mesDeHoy() ? 'Completos este mes' : 'Completos en ' + MESES[mes];
-    document.getElementById('calendario-hoy').hidden = racha.hoy || !racha.dias;
     pintarDetalle();
+  }
+
+  // La racha y la mejor racha; con 3 días o más, bajo la racha, si es la mejor, si es una
+  // nueva mejor o si mañana la iguala. Con la racha en lo más alto, la mejor se atenúa.
+  function pintarCifrasDeRacha() {
+    var mensaje = H.mensajeRacha(dias, claveDeHoy());
+    var rachaEl = document.getElementById('calendario-racha');
+    var mejorEl = document.getElementById('calendario-mejor');
+    rachaEl.textContent = diasEnLetra(racha.dias);
+    if (mensaje) {
+      var nota = el('span', 'calendario__celebra calendario__celebra--' + mensaje.tipo);
+      nota.appendChild(el('span', 'visualmente-oculto', ', '));
+      var adorno = mensaje.tipo === 'igual';
+      if (adorno) nota.appendChild(el('span', null, '✦ ')).setAttribute('aria-hidden', 'true');
+      nota.appendChild(document.createTextNode(mensaje.texto));
+      if (adorno) nota.appendChild(el('span', null, ' ✦')).setAttribute('aria-hidden', 'true');
+      rachaEl.appendChild(nota);
+    }
+    mejorEl.textContent = diasEnLetra(Math.max(racha.dias, H.mejorRacha(dias)));
+    mejorEl.parentNode.classList.toggle('calendario__repite', !!mensaje && mensaje.tipo !== 'manana');
   }
 
   // Solo un día de la rejilla entra con el tabulador (el elegido, hoy o el primero); las
@@ -464,6 +509,7 @@
     var clave = claveDeMes(d.getFullYear(), d.getMonth());
     if (clave < primerMes() || clave > mesDeHoy()) return false;
     mesVisto = { anio: d.getFullYear(), mes: d.getMonth() };
+    diaElegido = null; // al volver al mes de hoy, vuelve la línea de hoy
     pintarCalendario(conPaso);
     return true;
   }
@@ -546,7 +592,16 @@
     pintarRacha();
     diaElegido = null;
     mesVisto = { anio: hoy.getFullYear(), mes: hoy.getMonth() };
+    // El almanaque de hoy, completo y aún sin ver en el calendario: su sellito se estampa
+    // una vez (se apunta en almanaque:calendario-sello); con movimiento reducido, quieto.
+    estamparHoy = false;
+    if (nivelDe(claveDeHoy()) === 'completo' && leer(CLAVE_SELLO_CALENDARIO) !== claveDeHoy()) {
+      guardar(CLAVE_SELLO_CALENDARIO, claveDeHoy());
+      estamparHoy = !sinMovimiento();
+    }
+    detalleEl.textContent = ''; // para que la línea de hoy se anuncie también al reabrir
     pintarCalendario(false);
+    estamparHoy = false;
     if (calendario.showModal) calendario.showModal();
     else calendario.setAttribute('open', '');
     var boton = darFoco(null);
@@ -925,19 +980,9 @@
 
   /* --- Cuenta atrás hasta los juegos nuevos ----------------------------- */
 
-  // Hasta la próxima medianoche local, con fechas de calendario: así los días de cambio
-  // de hora duran lo que duran.
-  function textoCuentaAtras(ahora) {
-    var medianoche = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1);
-    var minutos = Math.max(1, Math.ceil((medianoche - ahora) / 60000));
-    var horas = Math.floor(minutos / 60);
-    var resto = minutos % 60;
-    if (!horas) return 'Juegos nuevos en ' + resto + ' min';
-    return 'Juegos nuevos en ' + horas + ' h' + (resto ? ' ' + resto + ' min' : '');
-  }
-
+  // La cuenta está en historial.js: la misma sirve para la línea de hoy del calendario.
   function pintarCuentaAtras() {
-    var texto = textoCuentaAtras(new Date());
+    var texto = H.textoCuentaAtras(new Date());
     if (cuentaEl.textContent !== texto) cuentaEl.textContent = texto;
   }
 
@@ -952,7 +997,10 @@
     var ahora = new Date();
     latidoId = window.setTimeout(function () {
       if (diaPintado && diaPintado !== claveDeHoy()) refrescar();
-      else if (!completoEl.hidden) pintarCuentaAtras();
+      else {
+        if (!completoEl.hidden) pintarCuentaAtras();
+        if (calendarioAbierto()) pintarDetalle(true);
+      }
       latir();
     }, 60000 - ahora.getSeconds() * 1000 - ahora.getMilliseconds() + 50);
   }

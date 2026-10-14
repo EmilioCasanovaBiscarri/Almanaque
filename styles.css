@@ -834,14 +834,53 @@ body::before {
   background: var(--tinta);
 }
 
-/* El sellito del almanaque completo: el de la portada en pequeño, recto. */
+/* El sellito del almanaque completo: la marca más fuerte de la escala. Relleno con el
+   rojo del sello de la portada, con un doble filete color papel por dentro, algo torcido
+   y con una esquina falta de tinta. Más grande que las demás, sin cambiar la fila. */
 .dia__marca--completo {
-  width: 1.05rem;
-  height: 1.05rem;
-  margin: -0.1rem;
-  border: 3.5px double var(--sello);
-  border-radius: 2px;
-  background: color-mix(in oklab, var(--sello) 22%, transparent);
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: -0.1375rem;
+  border-radius: 2px 3px 2px 4px / 3px 2px 4px 2px;
+  background: var(--sello);
+  box-shadow:
+    inset 0 0 0 2px var(--sello),
+    inset 0 0 0 3px var(--hoja),
+    inset 0 0 0 4px var(--sello),
+    inset 0 0 0 5px var(--hoja);
+  transform: rotate(-6deg);
+  -webkit-mask-image: radial-gradient(circle at 90% 94%, rgba(0, 0, 0, 0.55) 0, rgba(0, 0, 0, 0.85) 22%, #000 36%);
+  mask-image: radial-gradient(circle at 90% 94%, rgba(0, 0, 0, 0.55) 0, rgba(0, 0, 0, 0.85) 22%, #000 36%);
+}
+
+/* El de hoy, la primera vez que se ve completo en el calendario: el golpe de la portada. */
+.dia__marca--estampar {
+  animation: sellito-golpe 0.6s cubic-bezier(0.5, 0, 0.75, 0) 0.35s both;
+}
+
+@keyframes sellito-golpe {
+  0% {
+    opacity: 0;
+    transform: rotate(-6deg) scale(2.2);
+  }
+  20% {
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-6deg);
+    animation-timing-function: ease-out;
+  }
+  72% {
+    transform: rotate(-6deg) scale(1.1, 0.88);
+  }
+  86% {
+    transform: rotate(-6deg) scale(0.97, 1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-6deg);
+  }
 }
 
 .dia--completo .dia__numero {
@@ -858,9 +897,14 @@ body::before {
   line-height: 1.4;
 }
 
-.calendario__detalle--vacio {
+.calendario__detalle--hoy {
   font-style: italic;
   color: var(--tinta-suave);
+}
+
+/* Sin jugar hoy y con racha que perder. */
+.calendario__detalle--aviso {
+  color: var(--rubrica);
 }
 
 .calendario__leyenda {
@@ -877,6 +921,7 @@ body::before {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  white-space: nowrap;
 }
 
 .calendario__leyenda .dia__marca {
@@ -919,14 +964,19 @@ body::before {
   color: var(--tinta-suave);
 }
 
-.calendario__nota--hoy {
-  margin-top: 0.35rem !important;
+/* Bajo la cifra de la racha: «✦ tu mejor racha ✦» y compañía, en el rojo de tinta. */
+.calendario__celebra {
+  display: block;
+  font-size: 0.78rem;
   font-style: italic;
-  color: var(--rubrica);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--sello);
 }
 
-.calendario__nota[hidden] {
-  display: none;
+/* La mejor racha, cuando repite la cifra de la racha: atenuada, pero legible (4,5:1). */
+.calendario__repite dd {
+  opacity: 0.65;
 }
 
 @keyframes calendario-fondo {
@@ -1452,6 +1502,7 @@ a.hecho__enlace:hover .hecho__mano {
   .calendario[open],
   .calendario__hoja,
   .calendario__rejilla--paso tbody,
+  .dia__marca--estampar,
   .resaltada > .hoja__cuerpo,
   .resaltada > .hecho__enlace {
     animation: none;

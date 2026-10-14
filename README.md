@@ -202,14 +202,33 @@ El botón abre el calendario (un `<dialog>`; se cierra con ×, Escape o tocando 
   su `aria-label` y se recorre con las flechas, Inicio, Fin y Re Pág/Av Pág). Bajo cada
   día, un punto tenue si no se jugó, un cuadradito con más o menos tinta según la parte
   del almanaque hecha (hasta un tercio, hasta dos tercios, más) o, con todos los juegos
-  hechos, un sellito rojo. Hoy va recuadrado y los días por venir, apagados.
-- Al tocar un día, una línea con su detalle: «Martes, 14 de octubre · 9 de 12 juegos ·
+  hechos, la marca más fuerte: un sellito rojo relleno (el rojo del sello de la portada),
+  algo más grande que las demás, con un doble filete color papel por dentro, girado -6° y
+  con una esquina falta de tinta; el número de ese día, en rojo. Hoy va recuadrado y los
+  días por venir, apagados. La leyenda enseña la escala entera: «sin jugar · poco ▫ ▪ ■
+  mucho · completo», con los mismos dibujos.
+- Si hoy se ha completado el almanaque, la primera vez que se abre el calendario el
+  sellito de hoy se estampa con el golpe del sello de la portada (se apunta la fecha en
+  `almanaque:calendario-sello`); después, y con movimiento reducido, sale quieto.
+- Bajo la rejilla, una línea (con `aria-live`) que cuenta cómo va hoy mientras no se elige
+  otro día: «Hoy aún no has jugado: juega antes de medianoche para no perder tu racha de
+  16 días.» (en rojo), «Hoy aún no has jugado. Cualquier juego empieza una racha nueva.»,
+  «Hoy llevas 5 de 12 juegos. Te faltan 7 para el sello.» o «¡Almanaque completo hoy!
+  Juegos nuevos en 3 h 12 min.» (la misma cuenta atrás que la portada, al minuto; ese
+  cambio de cada minuto se pinta con `aria-live="off"`, para que los lectores de pantalla
+  la oigan al abrir el calendario y no una vez por minuto). Usa los mismos datos que la
+  portada: los juegos jugables de `games.json` y los hechos hoy.
+- Al tocar un día, la línea pasa a su detalle: «Martes, 14 de octubre · 9 de 12 juegos ·
   22 aciertos de 27», «… · Almanaque completo · 27 aciertos de 36», «… · Jugado» o
-  «… · Sin jugar».
+  «… · Sin jugar». Tocar hoy o cambiar de mes la devuelve a la de hoy.
 - Tres cifras: la racha, la mejor racha (la tanda más larga de `almanaque:dias`, contada
-  con fechas de calendario) y los almanaques completos del mes que se ve. Debajo, cómo
-  funciona la racha y, si hoy aún no se ha jugado y hay racha, el aviso de jugar antes
-  de medianoche.
+  con fechas de calendario) y los almanaques completos del mes que se ve. Con una racha
+  de 3 días o más, bajo su cifra, en cursiva roja: «¡nueva mejor racha!» si hoy se ha
+  jugado y la racha pasa de la mejor contada sin hoy; «✦ tu mejor racha ✦» si la iguala
+  (en los dos casos, la cifra de la mejor racha se atenúa, porque repite la otra), o
+  «mañana igualas tu mejor racha» si hoy ya se ha jugado y le falta un día. Los lectores
+  de pantalla lo oyen con la cifra («16 días, tu mejor racha»). Debajo, cómo funciona la
+  racha.
 
 Los datos salen de `almanaque:historial`, un objeto por fecha con los últimos 400 días:
 
@@ -230,7 +249,8 @@ Los datos salen de `almanaque:historial`, un objeto por fecha con los últimos 4
   muestra como «jugado», con la tinta media y sin más detalle. Lo mismo un día al que le
   falte `total`.
 
-Las cuentas están en `historial.js`; `volver-almanaque.js` lleva su propia copia de la
+Las cuentas están en `historial.js` (también los textos de la línea de hoy, los mensajes
+de la mejor racha y la cuenta atrás, que comparte con la portada); `volver-almanaque.js` lleva su propia copia de la
 fusión, porque vive en el repositorio de cada juego. Pruebas, sin dependencias:
 
 ```sh
@@ -328,7 +348,7 @@ Visita `/reiniciar/` (por ejemplo <https://emiliocasanovabiscarri.github.io/Alma
 pulsa «Borrar todo». Borra las partidas, rachas y estadísticas de todos los juegos y las
 hojas hechas, los resultados de hoy y la racha común de la portada, en ese navegador:
 todo lo que esté guardado bajo `<id>:…` (con los `id` de `games.json`) y las claves
-`almanaque:hechos`, `almanaque:resultados`, `almanaque:dias`, `almanaque:historial`, `almanaque:completo` y `almanaque:confeti`. El modo claro u oscuro de cada juego se conserva (las claves que
+`almanaque:hechos`, `almanaque:resultados`, `almanaque:dias`, `almanaque:historial`, `almanaque:completo`, `almanaque:calendario-sello` y `almanaque:confeti`. El modo claro u oscuro de cada juego se conserva (las claves que
 acaban en `:tema`). Funciona porque todos los juegos comparten origen
 (`emiliocasanovabiscarri.github.io`); en local solo alcanza a los juegos servidos desde el mismo
 `localhost:puerto`. Un juego nuevo queda incluido solo si guarda bajo `<id>:`.

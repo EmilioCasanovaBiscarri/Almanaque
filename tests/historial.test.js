@@ -104,6 +104,99 @@ test('semanas del mes, de lunes a domingo', () => {
   assert.equal(H.semanasDelMes(2026, 2).length, 6); // marzo de 2026 empieza en domingo
 });
 
+/* --- La línea de hoy ----------------------------------------------------- */
+
+// 20:48 del 14 de octubre de 2026: faltan 3 h 12 min para medianoche.
+const AHORA = new Date(2026, 9, 14, 20, 48);
+
+test('línea de hoy: sin jugar, con racha viva', () => {
+  const linea = H.lineaDeHoy({ hechos: 0, total: 12, jugado: false, racha: 16, ahora: AHORA });
+  assert.equal(linea.tipo, 'aviso');
+  assert.equal(linea.texto, 'Hoy aún no has jugado: juega antes de medianoche para no perder tu racha de 16 días.');
+  assert.equal(H.lineaDeHoy({ hechos: 0, total: 12, jugado: false, racha: 1, ahora: AHORA }).texto,
+    'Hoy aún no has jugado: juega antes de medianoche para no perder tu racha de 1 día.');
+});
+
+test('línea de hoy: sin jugar y sin racha', () => {
+  const linea = H.lineaDeHoy({ hechos: 0, total: 12, jugado: false, racha: 0, ahora: AHORA });
+  assert.equal(linea.tipo, 'sin-jugar');
+  assert.equal(linea.texto, 'Hoy aún no has jugado. Cualquier juego empieza una racha nueva.');
+});
+
+test('línea de hoy: a medias, con varios pendientes y con uno', () => {
+  assert.equal(H.lineaDeHoy({ hechos: 5, total: 12, jugado: true, racha: 17, ahora: AHORA }).texto,
+    'Hoy llevas 5 de 12 juegos. Te faltan 7 para el sello.');
+  const linea = H.lineaDeHoy({ hechos: 11, total: 12, jugado: true, racha: 17, ahora: AHORA });
+  assert.equal(linea.tipo, 'a-medias');
+  assert.equal(linea.texto, 'Hoy llevas 11 de 12 juegos. Te falta 1 para el sello.');
+});
+
+test('línea de hoy: jugado sin saber cuántos juegos había', () => {
+  assert.equal(H.lineaDeHoy({ hechos: 1, total: 0, jugado: true, racha: 3, ahora: AHORA }).texto, 'Hoy llevas 1 juego.');
+  assert.equal(H.lineaDeHoy({ hechos: 0, total: 12, jugado: true, racha: 3, ahora: AHORA }).texto, 'Hoy ya has jugado.');
+});
+
+test('línea de hoy: completo, con la cuenta atrás de la portada', () => {
+  const linea = H.lineaDeHoy({ hechos: 12, total: 12, jugado: true, racha: 17, ahora: AHORA });
+  assert.equal(linea.tipo, 'completo');
+  assert.equal(linea.texto, '¡Almanaque completo hoy! Juegos nuevos en 3 h 12 min.');
+  assert.equal(H.lineaDeHoy({ hechos: 12, total: 12, jugado: true, racha: 1, ahora: new Date(2026, 9, 14, 23, 15) }).texto,
+    '¡Almanaque completo hoy! Juegos nuevos en 45 min.');
+});
+
+test('cuenta atrás: en punto, y el día de 25 horas del cambio de hora', () => {
+  assert.equal(H.textoCuentaAtras(new Date(2026, 9, 14, 21, 0)), 'Juegos nuevos en 3 h');
+  // 25 de octubre de 2026 en Madrid: de 00:00 a 24:00 van 25 horas.
+  assert.equal(H.textoCuentaAtras(new Date(2026, 9, 25, 0, 0)), 'Juegos nuevos en 25 h');
+});
+
+/* --- La mejor racha, celebrada ------------------------------------------- */
+
+// Los n días que acaban en «hasta» (incluido).
+function tanda(hasta, n) {
+  const dias = [];
+  let d = hasta;
+  for (let i = 0; i < n; i++) {
+    dias.unshift(d);
+    d = H.diaAnterior(d);
+  }
+  return dias;
+}
+
+const HOY = '2026-10-14';
+
+test('mejor racha celebrada: la racha actual es la mejor', () => {
+  // Una tanda de 5 en septiembre y la de ahora, de 5 hasta ayer (hoy sin jugar).
+  const dias = tanda('2026-09-10', 5).concat(tanda('2026-10-13', 5));
+  assert.deepEqual(H.mensajeRacha(dias, HOY), { tipo: 'igual', texto: 'tu mejor racha' });
+  // Con hoy jugado e igualando, sin pasarla: también «tu mejor racha».
+  const igualada = tanda('2026-09-10', 6).concat(tanda(HOY, 6));
+  assert.equal(H.mensajeRacha(igualada, HOY).tipo, 'igual');
+});
+
+test('mejor racha celebrada: hoy se supera la mejor anterior', () => {
+  const dias = tanda('2026-09-10', 5).concat(tanda(HOY, 6));
+  assert.deepEqual(H.mensajeRacha(dias, HOY), { tipo: 'nueva', texto: '¡nueva mejor racha!' });
+  // La primera racha de 3: también es nueva.
+  assert.equal(H.mensajeRacha(tanda(HOY, 3), HOY).tipo, 'nueva');
+});
+
+test('mejor racha celebrada: mañana se iguala', () => {
+  const dias = tanda('2026-09-10', 8).concat(tanda(HOY, 7));
+  assert.deepEqual(H.mensajeRacha(dias, HOY), { tipo: 'manana', texto: 'mañana igualas tu mejor racha' });
+  // Si hoy aún no se ha jugado, no se promete nada para mañana.
+  assert.equal(H.mensajeRacha(tanda('2026-09-10', 8).concat(tanda('2026-10-13', 7)), HOY), null);
+  // A dos días de la mejor, tampoco.
+  assert.equal(H.mensajeRacha(tanda('2026-09-10', 9).concat(tanda(HOY, 7)), HOY), null);
+});
+
+test('mejor racha celebrada: con racha de menos de 3 días, nada', () => {
+  assert.equal(H.mensajeRacha([], HOY), null);
+  assert.equal(H.mensajeRacha(tanda(HOY, 2), HOY), null);
+  assert.equal(H.mensajeRacha(tanda('2026-09-10', 2).concat(tanda(HOY, 2)), HOY), null);
+  assert.equal(H.mensajeRacha(tanda('2026-09-10', 3).concat(tanda(HOY, 2)), HOY), null);
+});
+
 /* --- Fusión del historial ------------------------------------------------ */
 
 test('fusión: de cada campo se queda el mayor; nunca rebaja', () => {

@@ -155,8 +155,74 @@
     return semanas;
   }
 
+  /* --- Textos del calendario ---------------------------------------------- */
+
+  function diasEnLetra(n) {
+    return n + (n === 1 ? ' día' : ' días');
+  }
+
+  // Hasta la próxima medianoche local, con fechas de calendario: así los días de cambio
+  // de hora duran lo que duran. La misma cuenta para la portada y el calendario.
+  function textoCuentaAtras(ahora) {
+    var medianoche = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1);
+    var minutos = Math.max(1, Math.ceil((medianoche - ahora) / 60000));
+    var horas = Math.floor(minutos / 60);
+    var resto = minutos % 60;
+    if (!horas) return 'Juegos nuevos en ' + resto + ' min';
+    return 'Juegos nuevos en ' + horas + ' h' + (resto ? ' ' + resto + ' min' : '');
+  }
+
+  // La línea de hoy bajo la cuadrícula. estado: { hechos, total (0 si no se sabe),
+  // jugado (si hoy ya cuenta para la racha), racha (días seguidos; sin jugar hoy, los
+  // de ayer), ahora (Date, para la cuenta atrás) }. Devuelve { tipo, texto }, con tipo
+  // 'aviso' (sin jugar y con racha que perder), 'sin-jugar', 'a-medias' o 'completo'.
+  function lineaDeHoy(estado) {
+    var hechos = cifra(estado.hechos) || 0;
+    var total = cifra(estado.total) || 0;
+    if (total > 0 && hechos >= total) {
+      return { tipo: 'completo', texto: '¡Almanaque completo hoy! ' + textoCuentaAtras(estado.ahora) + '.' };
+    }
+    if (!hechos && !estado.jugado) {
+      if (estado.racha > 0) {
+        return {
+          tipo: 'aviso',
+          texto: 'Hoy aún no has jugado: juega antes de medianoche para no perder tu racha de ' +
+            diasEnLetra(estado.racha) + '.'
+        };
+      }
+      return { tipo: 'sin-jugar', texto: 'Hoy aún no has jugado. Cualquier juego empieza una racha nueva.' };
+    }
+    // Jugado, pero sin saber cuántos (un juego con la copia antigua del script) o cuántos había.
+    if (!hechos) return { tipo: 'a-medias', texto: 'Hoy ya has jugado.' };
+    if (!total) return { tipo: 'a-medias', texto: 'Hoy llevas ' + hechos + (hechos === 1 ? ' juego.' : ' juegos.') };
+    var faltan = total - hechos;
+    return {
+      tipo: 'a-medias',
+      texto: 'Hoy llevas ' + hechos + ' de ' + total + ' juegos. ' +
+        (faltan === 1 ? 'Te falta 1' : 'Te faltan ' + faltan) + ' para el sello.'
+    };
+  }
+
+  // Lo que se dice bajo la cifra de la racha, solo con 3 días o más: 'nueva' si hoy se ha
+  // jugado y la racha pasa de la mejor contada sin hoy, 'igual' si es la mejor, 'manana'
+  // si hoy ya se ha jugado y le falta un día para igualarla; si no, null.
+  function mensajeRacha(dias, hoy) {
+    var actual = racha(dias, hoy);
+    if (actual.dias < 3) return null;
+    var mejor = mejorRacha(dias);
+    var sinHoy = mejorRacha(fechasValidas(dias).filter(function (d) { return d !== hoy; }));
+    if (actual.hoy && actual.dias > sinHoy) return { tipo: 'nueva', texto: '¡nueva mejor racha!' };
+    if (actual.dias >= mejor) return { tipo: 'igual', texto: 'tu mejor racha' };
+    if (actual.hoy && mejor - actual.dias === 1) return { tipo: 'manana', texto: 'mañana igualas tu mejor racha' };
+    return null;
+  }
+
   return {
     LIMITE: LIMITE,
+    diasEnLetra: diasEnLetra,
+    textoCuentaAtras: textoCuentaAtras,
+    lineaDeHoy: lineaDeHoy,
+    mensajeRacha: mensajeRacha,
     claveDeFecha: claveDeFecha,
     fechaDeClave: fechaDeClave,
     diaSiguiente: diaSiguiente,
