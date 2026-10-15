@@ -812,26 +812,14 @@ body::before {
   background: var(--regla-suave);
 }
 
-.dia__marca--jugado-1,
-.dia__marca--jugado-2,
-.dia__marca--jugado-3 {
+/* Jugado, con cualquier número de juegos: un cuadradito de tinta media, para que el
+   sello rojo siga siendo lo primero que se ve. */
+.dia__marca--jugado {
   width: 0.7rem;
   height: 0.7rem;
   margin: 0.075rem;
-  border: 1.5px solid var(--tinta);
   border-radius: 1px;
-}
-
-.dia__marca--jugado-1 {
-  background: color-mix(in oklab, var(--tinta) 20%, transparent);
-}
-
-.dia__marca--jugado-2 {
   background: color-mix(in oklab, var(--tinta) 55%, transparent);
-}
-
-.dia__marca--jugado-3 {
-  background: var(--tinta);
 }
 
 /* El sellito del almanaque completo: la marca más fuerte de la escala. Relleno con el
@@ -932,7 +920,7 @@ body::before {
 .calendario__cifras {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0.8rem 0 0.7rem;
+  margin: 0.8rem 0 0;
   padding: 0.5rem 0;
   border-top: 3px double var(--regla);
   border-bottom: 3px double var(--regla);
@@ -940,8 +928,22 @@ body::before {
 
 .calendario__cifras > div {
   display: flex;
-  flex-direction: column-reverse;
-  justify-content: flex-end;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* La cifra arriba, la etiqueta debajo y, en la racha, el mensaje como tercera línea. En
+   el HTML van etiqueta, cifra y mensaje, para que se lean en ese orden. */
+.calendario__cifras dd {
+  order: 1;
+}
+
+.calendario__cifras dt {
+  order: 2;
+}
+
+.calendario__cifras .calendario__celebra {
+  order: 3;
 }
 
 .calendario__cifras dt {
@@ -959,14 +961,17 @@ body::before {
   font-variant-numeric: lining-nums;
 }
 
-.calendario__nota {
+/* El margen va en la frase y no en las cifras: sin ella, la hoja acaba en el filete. */
+.calendario .calendario__nota {
+  margin-top: 0.7rem;
   font-size: 0.92rem;
   color: var(--tinta-suave);
 }
 
-/* Bajo la cifra de la racha: «✦ tu mejor racha ✦» y compañía, en el rojo de tinta. */
-.calendario__celebra {
-  display: block;
+/* Bajo la etiqueta de la racha: «✦ tu mejor racha ✦» y compañía, en el rojo de tinta. */
+.calendario__cifras .calendario__celebra {
+  margin-top: 0.1rem;
+  font-family: inherit;
   font-size: 0.78rem;
   font-style: italic;
   font-weight: 400;
@@ -977,6 +982,10 @@ body::before {
 /* La mejor racha, cuando repite la cifra de la racha: atenuada, pero legible (4,5:1). */
 .calendario__repite dd {
   opacity: 0.65;
+}
+
+.calendario__nota[hidden] {
+  display: none;
 }
 
 @keyframes calendario-fondo {

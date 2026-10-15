@@ -119,19 +119,11 @@
     return !!dia && dia.total > 0 && dia.hechos >= dia.total;
   }
 
-  // Cómo se pinta un día: 'sin-jugar', 'jugado-1', 'jugado-2', 'jugado-3' (poca, media o
-  // mucha tinta según la parte del almanaque hecha) o 'completo'. Los días anteriores al
-  // historial (solo en almanaque:dias) y los que no saben cuántos juegos había, con la
-  // tinta media.
+  // Cómo se pinta un día: 'sin-jugar', 'jugado' (con cualquier número de juegos, y
+  // también los días anteriores al historial, solo en almanaque:dias) o 'completo'.
   function nivelDelDia(dia, jugado) {
     if (esCompleto(dia)) return 'completo';
-    var conDetalle = !!dia && dia.hechos > 0;
-    if (!conDetalle && !jugado) return 'sin-jugar';
-    if (!conDetalle || !(dia.total > 0)) return 'jugado-2';
-    var parte = dia.hechos / dia.total;
-    if (parte <= 1 / 3) return 'jugado-1';
-    if (parte <= 2 / 3) return 'jugado-2';
-    return 'jugado-3';
+    return jugado || (!!dia && dia.hechos > 0) ? 'jugado' : 'sin-jugar';
   }
 
   // Días del mes completos, con el mes contado desde 0, como en Date.

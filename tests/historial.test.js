@@ -61,13 +61,11 @@ test('nivel: sin jugar', () => {
   assert.equal(H.nivelDelDia({ hechos: 0, total: 12 }, false), 'sin-jugar');
 });
 
-test('nivel: jugado con tres intensidades según la parte hecha', () => {
-  assert.equal(H.nivelDelDia({ hechos: 1, total: 12 }, true), 'jugado-1');
-  assert.equal(H.nivelDelDia({ hechos: 4, total: 12 }, true), 'jugado-1'); // un tercio justo
-  assert.equal(H.nivelDelDia({ hechos: 5, total: 12 }, true), 'jugado-2');
-  assert.equal(H.nivelDelDia({ hechos: 8, total: 12 }, true), 'jugado-2'); // dos tercios justos
-  assert.equal(H.nivelDelDia({ hechos: 9, total: 12 }, true), 'jugado-3');
-  assert.equal(H.nivelDelDia({ hechos: 11, total: 12 }, true), 'jugado-3');
+test('nivel: jugado, con pocos y con muchos juegos', () => {
+  assert.equal(H.nivelDelDia({ hechos: 1, total: 12 }, true), 'jugado');
+  assert.equal(H.nivelDelDia({ hechos: 11, total: 12 }, true), 'jugado');
+  // Con el día en el historial aunque falte en almanaque:dias.
+  assert.equal(H.nivelDelDia({ hechos: 5, total: 12 }, false), 'jugado');
 });
 
 test('nivel: completo con todos los juegos hechos', () => {
@@ -77,10 +75,10 @@ test('nivel: completo con todos los juegos hechos', () => {
   assert.equal(H.nivelDelDia({ hechos: 12, total: 12 }, false), 'completo');
 });
 
-test('nivel: días antiguos sin detalle y días sin total, con la tinta media', () => {
-  assert.equal(H.nivelDelDia(undefined, true), 'jugado-2');
-  assert.equal(H.nivelDelDia({ hechos: 3 }, true), 'jugado-2');
-  assert.equal(H.nivelDelDia({ hechos: 3, total: 0 }, false), 'jugado-2');
+test('nivel: días antiguos sin detalle y días sin total, jugados', () => {
+  assert.equal(H.nivelDelDia(undefined, true), 'jugado');
+  assert.equal(H.nivelDelDia({ hechos: 3 }, true), 'jugado');
+  assert.equal(H.nivelDelDia({ hechos: 3, total: 0 }, false), 'jugado');
 });
 
 test('completos del mes', () => {

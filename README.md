@@ -200,13 +200,13 @@ El botón abre el calendario (un `<dialog>`; se cierra con ×, Escape o tocando 
   hasta el de hoy.
 - Una rejilla de lunes a domingo (una tabla con `role="grid"`; cada día es un botón con
   su `aria-label` y se recorre con las flechas, Inicio, Fin y Re Pág/Av Pág). Bajo cada
-  día, un punto tenue si no se jugó, un cuadradito con más o menos tinta según la parte
-  del almanaque hecha (hasta un tercio, hasta dos tercios, más) o, con todos los juegos
-  hechos, la marca más fuerte: un sellito rojo relleno (el rojo del sello de la portada),
+  día, un punto tenue si no se jugó, un cuadradito de tinta media si se jugó (con
+  cualquier número de juegos; también los días antiguos, solo en `almanaque:dias`) o, con
+  todos los juegos hechos, la marca más fuerte: un sellito rojo relleno (el rojo del sello de la portada),
   algo más grande que las demás, con un doble filete color papel por dentro, girado -6° y
   con una esquina falta de tinta; el número de ese día, en rojo. Hoy va recuadrado y los
-  días por venir, apagados. La leyenda enseña la escala entera: «sin jugar · poco ▫ ▪ ■
-  mucho · completo», con los mismos dibujos.
+  días por venir, apagados. La leyenda dice «· sin jugar ■ jugado ◈ completo», con los mismos
+  dibujos.
 - Si hoy se ha completado el almanaque, la primera vez que se abre el calendario el
   sellito de hoy se estampa con el golpe del sello de la portada (se apunta la fecha en
   `almanaque:calendario-sello`); después, y con movimiento reducido, sale quieto.
@@ -223,12 +223,12 @@ El botón abre el calendario (un `<dialog>`; se cierra con ×, Escape o tocando 
   «… · Sin jugar». Tocar hoy o cambiar de mes la devuelve a la de hoy.
 - Tres cifras: la racha, la mejor racha (la tanda más larga de `almanaque:dias`, contada
   con fechas de calendario) y los almanaques completos del mes que se ve. Con una racha
-  de 3 días o más, bajo su cifra, en cursiva roja: «¡nueva mejor racha!» si hoy se ha
+  de 3 días o más, bajo la etiqueta «Racha», en cursiva roja: «¡nueva mejor racha!» si hoy se ha
   jugado y la racha pasa de la mejor contada sin hoy; «✦ tu mejor racha ✦» si la iguala
   (en los dos casos, la cifra de la mejor racha se atenúa, porque repite la otra), o
   «mañana igualas tu mejor racha» si hoy ya se ha jugado y le falta un día. Los lectores
-  de pantalla lo oyen con la cifra («16 días, tu mejor racha»). Debajo, cómo funciona la
-  racha.
+  de pantalla lo oyen con la cifra («16 días, tu mejor racha»). Debajo, mientras la racha
+  sea de menos de 3 días, cómo funciona la racha.
 
 Los datos salen de `almanaque:historial`, un objeto por fecha con los últimos 400 días:
 
@@ -246,8 +246,7 @@ Los datos salen de `almanaque:historial`, un objeto por fecha con los últimos 4
   ve de hoy.
 - Nunca se rebaja un día: de cada campo se guarda el mayor valor visto.
 - Los días anteriores a este historial están solo en `almanaque:dias`: el calendario los
-  muestra como «jugado», con la tinta media y sin más detalle. Lo mismo un día al que le
-  falte `total`.
+  muestra como «jugado», sin más detalle. Un día al que le falte `total`, también.
 
 Las cuentas están en `historial.js` (también los textos de la línea de hoy, los mensajes
 de la mejor racha y la cuenta atrás, que comparte con la portada); `volver-almanaque.js` lleva su propia copia de la

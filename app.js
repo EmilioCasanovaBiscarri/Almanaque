@@ -480,15 +480,19 @@
     var rachaEl = document.getElementById('calendario-racha');
     var mejorEl = document.getElementById('calendario-mejor');
     rachaEl.textContent = diasEnLetra(racha.dias);
+    // El mensaje, en un segundo <dd> de la racha: se lee «Racha, 16 días, tu mejor racha».
+    var antes = rachaEl.parentNode.querySelector('.calendario__celebra');
+    if (antes) antes.remove();
     if (mensaje) {
-      var nota = el('span', 'calendario__celebra calendario__celebra--' + mensaje.tipo);
-      nota.appendChild(el('span', 'visualmente-oculto', ', '));
+      var nota = el('dd', 'calendario__celebra calendario__celebra--' + mensaje.tipo);
       var adorno = mensaje.tipo === 'igual';
       if (adorno) nota.appendChild(el('span', null, '✦ ')).setAttribute('aria-hidden', 'true');
       nota.appendChild(document.createTextNode(mensaje.texto));
       if (adorno) nota.appendChild(el('span', null, ' ✦')).setAttribute('aria-hidden', 'true');
-      rachaEl.appendChild(nota);
+      rachaEl.parentNode.appendChild(nota);
     }
+    // La regla de la racha, mientras aún no se conoce: con 3 días o más, ya no hace falta.
+    document.getElementById('calendario-nota').hidden = racha.dias >= 3;
     mejorEl.textContent = diasEnLetra(Math.max(racha.dias, H.mejorRacha(dias)));
     mejorEl.parentNode.classList.toggle('calendario__repite', !!mensaje && mensaje.tipo !== 'manana');
   }
