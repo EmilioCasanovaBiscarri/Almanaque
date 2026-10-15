@@ -197,7 +197,14 @@ Con racha 0 queda solo la hoja de taco: el botón se ve siempre.
 El botón abre el calendario (un `<dialog>`; se cierra con ×, Escape o tocando fuera):
 
 - «‹ Octubre MMXXVI ›»: las flechas cambian de mes, desde el mes del primer día jugado
-  hasta el de hoy.
+  hasta el de hoy. En el móvil también se cambia deslizando el dedo por la hoja (a la
+  izquierda, el mes siguiente; a la derecha, el anterior). Para no chocar con el
+  desplazamiento vertical, el eje se decide en los primeros 10 px: si el dedo empieza a
+  ir en vertical, el gesto ya no cambia de mes. Además, al soltar ha de ser claramente
+  horizontal (unos 20° de inclinación como mucho), de al menos 50 px y de menos de 0,8 s.
+  Con dos dedos, nada. Los límites son los de las flechas: más allá, la rejilla rebota un
+  poco hacia ese lado para decir que no hay más. La rejilla nueva entra por el lado hacia
+  el que se va. Con movimiento reducido, ni rebote ni entrada.
 - Una rejilla de lunes a domingo (una tabla con `role="grid"`; cada día es un botón con
   su `aria-label` y se recorre con las flechas, Inicio, Fin y Re Pág/Av Pág). Bajo cada
   día, un punto tenue si no se jugó, un cuadradito de tinta media si se jugó (con

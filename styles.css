@@ -724,6 +724,29 @@ body::before {
   animation: calendario-paso 0.25s ease-out both;
 }
 
+/* Al cambiar de mes, la rejilla nueva entra por el lado hacia el que se va. */
+.calendario__rejilla--paso[data-sentido="despues"] tbody {
+  animation-name: calendario-paso-despues;
+}
+
+.calendario__rejilla--paso[data-sentido="antes"] tbody {
+  animation-name: calendario-paso-antes;
+}
+
+/* Al deslizar hacia un mes que no hay: la rejilla cede hacia el lado del gesto y vuelve. */
+.calendario__rejilla--tope[data-sentido="despues"] tbody {
+  animation: calendario-tope-despues 0.32s ease-out;
+}
+
+.calendario__rejilla--tope[data-sentido="antes"] tbody {
+  animation: calendario-tope-antes 0.32s ease-out;
+}
+
+/* El dedo desliza en horizontal para cambiar de mes; el desplazamiento vertical sigue. */
+.calendario__hoja {
+  touch-action: pan-y;
+}
+
 .calendario__rejilla th {
   padding: 0.25rem 0 0.3rem;
   border-bottom: 1px solid var(--regla-suave);
@@ -1004,6 +1027,39 @@ body::before {
 @keyframes calendario-paso {
   from {
     opacity: 0;
+  }
+}
+
+@keyframes calendario-paso-despues {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@keyframes calendario-paso-antes {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+}
+
+/* Deslizar a la izquierda (mes siguiente) mueve la rejilla hacia la izquierda. */
+@keyframes calendario-tope-despues {
+  35% {
+    transform: translateX(-0.75rem);
+  }
+  70% {
+    transform: translateX(0.2rem);
+  }
+}
+
+@keyframes calendario-tope-antes {
+  35% {
+    transform: translateX(0.75rem);
+  }
+  70% {
+    transform: translateX(-0.2rem);
   }
 }
 
@@ -1511,6 +1567,8 @@ a.hecho__enlace:hover .hecho__mano {
   .calendario[open],
   .calendario__hoja,
   .calendario__rejilla--paso tbody,
+  .calendario__rejilla--paso[data-sentido] tbody,
+  .calendario__rejilla--tope[data-sentido] tbody,
   .dia__marca--estampar,
   .resaltada > .hoja__cuerpo,
   .resaltada > .hecho__enlace {

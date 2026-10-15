@@ -512,6 +512,9 @@
     var d = new Date(anio, mes, 1, 12);
     var clave = claveDeMes(d.getFullYear(), d.getMonth());
     if (clave < primerMes() || clave > mesDeHoy()) return false;
+    // La rejilla nueva entra por el lado hacia el que se va (ver calendario-paso en styles.css).
+    document.getElementById('calendario-rejilla').dataset.sentido =
+      clave > claveDeMes(mesVisto.anio, mesVisto.mes) ? 'despues' : 'antes';
     mesVisto = { anio: d.getFullYear(), mes: d.getMonth() };
     diaElegido = null; // al volver al mes de hoy, vuelve la línea de hoy
     pintarCalendario(conPaso);
@@ -590,6 +593,70 @@
 
   flechaAntes.addEventListener('click', function () { pasarMes(-1, flechaAntes, flechaDespues); });
   flechaDespues.addEventListener('click', function () { pasarMes(1, flechaDespues, flechaAntes); });
+
+  // En el móvil, deslizar el dedo por la hoja también cambia de mes: hacia la izquierda,
+  // el siguiente; hacia la derecha, el anterior. Para no chocar con el desplazamiento
+  // vertical, el eje se decide en los primeros píxeles: si el dedo empieza a ir más en
+  // vertical, el gesto ya no cambia de mes. Y al soltar ha de ser claramente horizontal
+  // (como mucho unos 20° de inclinación), largo y no muy lento. Los límites son los de las
+  // flechas: más allá, la rejilla rebota un poco para decir que no hay más.
+  var DESLIZAR_MIN_PX = 50;
+  var DESLIZAR_MAX_MS = 800;
+  var DESLIZAR_EJE_PX = 10;     // movimiento con el que se decide el eje
+  var DESLIZAR_PENDIENTE = 2.75; // dx ha de ser al menos 2,75 veces dy (unos 20°)
+  var hojaCalendario = calendario.querySelector('.calendario__hoja');
+  var rejillaCalendario = document.getElementById('calendario-rejilla');
+  var toque = null;
+
+  hojaCalendario.addEventListener('touchstart', function (e) {
+    toque = e.touches.length === 1 ?
+      { x: e.touches[0].clientX, y: e.touches[0].clientY, cuando: Date.now(), eje: null } : null;
+  }, { passive: true });
+
+  hojaCalendario.addEventListener('touchmove', function (e) {
+    if (!toque) return;
+    if (e.touches.length !== 1) {
+      toque = null; // dos dedos: es un zum, no un cambio de mes
+      return;
+    }
+    if (toque.eje) return;
+    var dx = Math.abs(e.touches[0].clientX - toque.x);
+    var dy = Math.abs(e.touches[0].clientY - toque.y);
+    if (Math.max(dx, dy) < DESLIZAR_EJE_PX) return;
+    toque.eje = dx > dy * 2 ? 'horizontal' : 'vertical';
+    if (toque.eje === 'vertical') toque = null;
+  }, { passive: true });
+
+  hojaCalendario.addEventListener('touchcancel', function () { toque = null; }, { passive: true });
+
+  hojaCalendario.addEventListener('touchend', function (e) {
+    if (!toque || toque.eje !== 'horizontal' || !e.changedTouches.length) {
+      toque = null;
+      return;
+    }
+    var dx = e.changedTouches[0].clientX - toque.x;
+    var dy = e.changedTouches[0].clientY - toque.y;
+    var rapido = Date.now() - toque.cuando <= DESLIZAR_MAX_MS;
+    toque = null;
+    if (!rapido || Math.abs(dx) < DESLIZAR_MIN_PX || Math.abs(dx) < Math.abs(dy) * DESLIZAR_PENDIENTE) return;
+    var paso = dx < 0 ? 1 : -1;
+    var flecha = paso > 0 ? flechaDespues : flechaAntes;
+    if (flecha.disabled) rebotar(paso);
+    else verMes(mesVisto.anio, mesVisto.mes + paso, true);
+  }, { passive: true });
+
+  // No hay más meses por ese lado: la rejilla cede un poco hacia allí y vuelve.
+  function rebotar(paso) {
+    if (sinMovimiento()) return;
+    rejillaCalendario.classList.remove('calendario__rejilla--paso', 'calendario__rejilla--tope');
+    rejillaCalendario.dataset.sentido = paso > 0 ? 'despues' : 'antes';
+    void rejillaCalendario.offsetWidth; // para que el rebote vuelva a empezar
+    rejillaCalendario.classList.add('calendario__rejilla--tope');
+  }
+
+  rejillaCalendario.addEventListener('animationend', function () {
+    rejillaCalendario.classList.remove('calendario__rejilla--tope');
+  });
 
   function abrirCalendario() {
     var hoy = new Date();
