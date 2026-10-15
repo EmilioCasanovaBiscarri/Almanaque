@@ -60,12 +60,12 @@ function datosDeUso() {
   const hoy = fecha(new Date());
   return {
     'almanaque:dias': JSON.stringify(dias),
-    'almanaque:hechos': JSON.stringify({ fecha: hoy, ids: ['calendas', 'periplo'] }),
+    'almanaque:hechos': JSON.stringify({ fecha: hoy, ids: ['calendas', 'trampantojo'] }),
     'almanaque:resultados': JSON.stringify({
       fecha: hoy,
       juegos: {
         calendas: { aciertos: 9, total: 10, racha: 12 },
-        periplo: { aciertos: 2, total: 3 }
+        trampantojo: { aciertos: 2, total: 3 }
       }
     })
   };

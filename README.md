@@ -1,7 +1,7 @@
 # Almanaque
 
 Colección de juegos de palabras: la portada común de los juegos diarios en español
-(Calendas, Periplo, Mentidero, Trampantojo, Atlas, Gentilicio, Paremia, Relicario, Toponimia, Otrora, Chirimbolo, Gazapo). Es una PWA instalable hecha con HTML, CSS y
+(Calendas, Trampantojo, Periplo, Atlas, Mentidero, Paremia, Chirimbolo, Gazapo, Relicario, Gentilicio, Toponimia, Otrora). Es una PWA instalable hecha con HTML, CSS y
 JavaScript, sin dependencias ni compilación.
 
 ## Archivos
@@ -48,7 +48,11 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
      demás y oscuro: al menos 4,5:1 sobre el papel `#f3ead7`.
    - `estado` es opcional: `"nuevo"` añade una etiqueta en la esquina superior izquierda; `"proximamente"` muestra la hoja
      sin enlace (también se puede dejar `url` vacío). Bórralo cuando ya no haga falta.
-   - El orden de las hojas es el del archivo.
+   - El orden de las hojas es el del archivo, y también el de «Siguiente juego». Está
+     pensado para alternar mecánicas, de modo que no se encadenen muchos juegos de elegir
+     entre opciones: escribir (Trampantojo, Paremia) y señalar (Atlas en un mapa, Gazapo
+     en un texto) van intercalados entre los de elegir. Dos juegos seguidos no deben
+     tener colores parecidos.
 3. En el **repositorio del juego**, añade la mano ☜ para volver a Almanaque: copia
    `para-los-juegos/volver-almanaque.js` junto al `index.html` del juego (en un proyecto
    con Vite, en `public/`) y añade en su `index.html`:
@@ -108,9 +112,9 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
 
    `volver-almanaque.js` lo muestra siempre y lo lleva al mismo sitio que la mano ☜.
 
-   **Siguiente juego.** La franja ofrece siempre a la derecha «Periplo ☞»
+   **Siguiente juego.** La franja ofrece siempre a la derecha «Trampantojo ☞»
    (en pantallas estrechas, «Regresar al Almanaque» se acorta a «☜ Almanaque»). Con la
-   partida de hoy terminada, el script pone además un botón «Siguiente juego: Periplo ☞»
+   partida de hoy terminada, el script pone además un botón «Siguiente juego: Trampantojo ☞»
    justo encima de cada botón de volver, con sus mismas clases, así que toma el estilo del
    juego sin tocar su HTML. Los dos llevan al primer juego que sigue en el orden de
    `games.json` y que aún no está hecho hoy (con vuelta al principio, y sin los de
@@ -166,7 +170,7 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
 ## La portada a lo largo del día
 
 Lo pendiente va siempre arriba. Las hojas de los juegos que faltan por hacer hoy salen
-en el orden de `games.json`, cada una con su número de siempre (Atlas es «Nº V» aunque
+en el orden de `games.json`, cada una con su número de siempre (Atlas es «Nº IV» aunque
 sea la primera que queda), y las de «próximamente» al final. Debajo, la sección «Hechos
 hoy» recoge los juegos ya hechos en una línea compacta cada uno: icono, nombre, resultado
 de hoy en tres casillas y ☞, que lleva al juego como la hoja. Sin ningún juego hecho, la sección no sale y

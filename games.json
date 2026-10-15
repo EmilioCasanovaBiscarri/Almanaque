@@ -9,24 +9,6 @@
     "icono": "icons/calendas.png"
   },
   {
-    "id": "periplo",
-    "nombre": "Periplo",
-    "subtitulo": "El viaje de las palabras",
-    "descripcion": "Adivina de dónde viene cada palabra. Tres nuevas cada día.",
-    "url": "https://emiliocasanovabiscarri.github.io/Periplo/",
-    "color": "#1b747f",
-    "icono": "icons/periplo.svg"
-  },
-  {
-    "id": "mentidero",
-    "nombre": "Mentidero",
-    "subtitulo": "¿Verdad o cuento?",
-    "descripcion": "Una palabra rara y varias definiciones. Solo una dice la verdad.",
-    "url": "https://emiliocasanovabiscarri.github.io/Mentidero/",
-    "color": "#6b3a5b",
-    "icono": "icons/mentidero.svg"
-  },
-  {
     "id": "trampantojo",
     "nombre": "Trampantojo",
     "subtitulo": "Los retos crípticos del día",
@@ -34,6 +16,15 @@
     "url": "https://emiliocasanovabiscarri.github.io/Trampantojo/",
     "color": "#73674f",
     "icono": "icons/trampantojo.svg"
+  },
+  {
+    "id": "periplo",
+    "nombre": "Periplo",
+    "subtitulo": "El viaje de las palabras",
+    "descripcion": "Adivina de dónde viene cada palabra. Tres nuevas cada día.",
+    "url": "https://emiliocasanovabiscarri.github.io/Periplo/",
+    "color": "#1b747f",
+    "icono": "icons/periplo.svg"
   },
   {
     "id": "atlas",
@@ -45,13 +36,13 @@
     "icono": "icons/atlas.svg"
   },
   {
-    "id": "gentilicio",
-    "nombre": "Gentilicio",
-    "subtitulo": "¿De dónde eres?",
-    "descripcion": "Tres gentilicios al día: adivina de qué lugar son y descubre de dónde viene su nombre.",
-    "url": "https://emiliocasanovabiscarri.github.io/Gentilicio/",
-    "color": "#2F5175",
-    "icono": "icons/gentilicio.svg"
+    "id": "mentidero",
+    "nombre": "Mentidero",
+    "subtitulo": "¿Verdad o cuento?",
+    "descripcion": "Una palabra rara y varias definiciones. Solo una dice la verdad.",
+    "url": "https://emiliocasanovabiscarri.github.io/Mentidero/",
+    "color": "#6b3a5b",
+    "icono": "icons/mentidero.svg"
   },
   {
     "id": "paremia",
@@ -61,33 +52,6 @@
     "url": "https://emiliocasanovabiscarri.github.io/Paremia/",
     "color": "#3e5f3a",
     "icono": "icons/paremia.png"
-  },
-  {
-    "id": "relicario",
-    "nombre": "Relicario",
-    "subtitulo": "Gabinete de palabras fósiles",
-    "descripcion": "Tres expresiones con una palabra que solo sobrevive dentro de ellas. ¿Sabes qué significaba?",
-    "url": "https://emiliocasanovabiscarri.github.io/Relicario/",
-    "color": "#8a4b2a",
-    "icono": "icons/relicario.svg"
-  },
-  {
-    "id": "toponimia",
-    "nombre": "Toponimia",
-    "subtitulo": "¿Qué significa su nombre?",
-    "descripcion": "Tres lugares del mundo hispanohablante al día. Descubre qué significa su nombre y de qué lengua viene.",
-    "url": "https://emiliocasanovabiscarri.github.io/Toponimia/",
-    "color": "#0f4f3c",
-    "icono": "icons/toponimia.svg"
-  },
-  {
-    "id": "otrora",
-    "nombre": "Otrora",
-    "subtitulo": "Lo que las palabras fueron",
-    "descripcion": "Tres palabras que han cambiado de significado. Adivina qué querían decir antaño.",
-    "url": "https://emiliocasanovabiscarri.github.io/Otrora/",
-    "color": "#5e4632",
-    "icono": "icons/otrora.svg"
   },
   {
     "id": "chirimbolo",
@@ -108,5 +72,41 @@
     "color": "#55479a",
     "icono": "icons/gazapo.svg",
     "estado": "nuevo"
+  },
+  {
+    "id": "relicario",
+    "nombre": "Relicario",
+    "subtitulo": "Gabinete de palabras fósiles",
+    "descripcion": "Tres expresiones con una palabra que solo sobrevive dentro de ellas. ¿Sabes qué significaba?",
+    "url": "https://emiliocasanovabiscarri.github.io/Relicario/",
+    "color": "#8a4b2a",
+    "icono": "icons/relicario.svg"
+  },
+  {
+    "id": "gentilicio",
+    "nombre": "Gentilicio",
+    "subtitulo": "¿De dónde eres?",
+    "descripcion": "Tres gentilicios al día: adivina de qué lugar son y descubre de dónde viene su nombre.",
+    "url": "https://emiliocasanovabiscarri.github.io/Gentilicio/",
+    "color": "#2F5175",
+    "icono": "icons/gentilicio.svg"
+  },
+  {
+    "id": "toponimia",
+    "nombre": "Toponimia",
+    "subtitulo": "¿Qué significa su nombre?",
+    "descripcion": "Tres lugares del mundo hispanohablante al día. Descubre qué significa su nombre y de qué lengua viene.",
+    "url": "https://emiliocasanovabiscarri.github.io/Toponimia/",
+    "color": "#0f4f3c",
+    "icono": "icons/toponimia.svg"
+  },
+  {
+    "id": "otrora",
+    "nombre": "Otrora",
+    "subtitulo": "Lo que las palabras fueron",
+    "descripcion": "Tres palabras que han cambiado de significado. Adivina qué querían decir antaño.",
+    "url": "https://emiliocasanovabiscarri.github.io/Otrora/",
+    "color": "#5e4632",
+    "icono": "icons/otrora.svg"
   }
 ]
