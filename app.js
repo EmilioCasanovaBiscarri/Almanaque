@@ -1202,9 +1202,16 @@
     if (esNavegadorInterno(ua)) {
       return 'Desde aquí no se puede instalar. Abre esta página en tu navegador (en el menú {puntos} de la app suele aparecer «Abrir en el navegador») y pulsa de nuevo «Instalar Almanaque».';
     }
-    // En Safari del iPhone, «Compartir» está dentro del menú ···, y «Añadir a pantalla de inicio», en «Más».
+    // La página no sabe el modelo del iPhone, solo la versión de Safari («Version/26.0»).
+    // Desde Safari 26 (iOS 26), Compartir puede estar en la barra o dentro del menú ···,
+    // según el diseño de pestañas elegido, y «Añadir a pantalla de inicio» puede quedar bajo «Más».
+    // Antes, Compartir siempre está en la barra y la opción se encuentra bajando por la lista.
     if (ios && !/CriOS|FxiOS|EdgiOS/.test(ua) && /iPhone|iPod/.test(ua)) {
-      return 'Toca el menú {puntos}, luego Compartir {compartir}, después «Más» {puntos} y, por último, «Añadir a pantalla de inicio».';
+      var versionSafari = parseInt((ua.match(/Version\/(\d+)/) || [])[1], 10);
+      if (versionSafari < 26) {
+        return 'Toca Compartir {compartir} en la barra de Safari y, en la lista que se abre, desliza hacia abajo hasta «Añadir a pantalla de inicio».';
+      }
+      return 'Toca Compartir {compartir}: según cómo tengas Safari, está en la barra o dentro del menú {puntos}. Después toca «Añadir a pantalla de inicio»; si no lo ves, toca antes «Más» {puntos}.';
     }
     // En Safari del iPad, «Compartir» suele estar en la barra.
     if (ios && !/CriOS|FxiOS|EdgiOS/.test(ua)) {
