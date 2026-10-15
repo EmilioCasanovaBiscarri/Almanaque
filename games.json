@@ -60,8 +60,7 @@
     "descripcion": "Tres láminas al día con una parte señalada. ¿Sabes cómo se llama? Todo tiene nombre.",
     "url": "https://emiliocasanovabiscarri.github.io/Chirimbolo/",
     "color": "#aa5024",
-    "icono": "icons/chirimbolo.svg",
-    "estado": "nuevo"
+    "icono": "icons/chirimbolo.svg"
   },
   {
     "id": "gazapo",
@@ -70,8 +69,7 @@
     "descripcion": "Un texto de otra época con tres palabras que no podían estar ahí. ¿Las cazas?",
     "url": "https://emiliocasanovabiscarri.github.io/Gazapo/",
     "color": "#55479a",
-    "icono": "icons/gazapo.svg",
-    "estado": "nuevo"
+    "icono": "icons/gazapo.svg"
   },
   {
     "id": "relicario",
