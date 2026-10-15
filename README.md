@@ -50,8 +50,8 @@ otro criterio se descuadran fuera de España. Saca la fecha con `getFullYear()`,
      sin enlace (también se puede dejar `url` vacío). Bórralo cuando ya no haga falta.
    - El orden de las hojas es el del archivo, y también el de «Siguiente juego». Está
      pensado para alternar mecánicas, de modo que no se encadenen muchos juegos de elegir
-     entre opciones: escribir (Trampantojo, Paremia) y señalar (Atlas en un mapa, Gazapo
-     en un texto) van intercalados entre los de elegir. Dos juegos seguidos no deben
+     entre opciones: escribir (Trampantojo, Paremia), señalar (Atlas en un mapa, Gazapo
+     en un texto) y emparejar (Toponimia) van intercalados entre los de elegir. Dos juegos seguidos no deben
      tener colores parecidos.
 3. En el **repositorio del juego**, añade la mano ☜ para volver a Almanaque: copia
    `para-los-juegos/volver-almanaque.js` junto al `index.html` del juego (en un proyecto
