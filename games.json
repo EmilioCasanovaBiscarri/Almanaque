@@ -96,7 +96,8 @@
     "descripcion": "Tres lugares del mundo hispanohablante al día. Descubre qué significa su nombre y de qué lengua viene.",
     "url": "https://emiliocasanovabiscarri.github.io/Toponimia/",
     "color": "#0f4f3c",
-    "icono": "icons/toponimia.svg"
+    "icono": "icons/toponimia.svg",
+    "estado": "nuevo"
   },
   {
     "id": "otrora",
